@@ -3,6 +3,7 @@ import glob
 import os
 import psutil
 import signal
+import git
 
 def _testRemoveKey(segmentkeys):
     import copy
@@ -31,7 +32,7 @@ def getProcesses():
     return pids
 
 def getSegments(basedir):
-    segments = glob.glob("%s/vpn04"%(basedir))
+    segments = glob.glob("%s/vpn*"%(basedir))
     return segments
 
 def getPeers(segment):
@@ -75,23 +76,30 @@ def getShrinkedSegments(before,after):
                 shrinkedSegments[s] = True
     return shrinkedSegments.keys()
 
+def gitPull(basedir):
+    repo = git.Repo(basedir)
+    o = repo.remotes.origin
+    o.pull()
 
 basedir = "/etc/fastd"
 segmentkeys_before = getAllKeys(basedir)
 
-#here insert git pull
+gitPull(basedir)
+
 segmentkeys_after = getAllKeys(basedir)
-segmentkeys_after = _testRemoveKey(segmentkeys_after)
+#segmentkeys_after = _testRemoveKey(segmentkeys_after)
 
 #printSegmentkeys(segmentkeys_before)
 #printSegmentkeys(segmentkeys_after)
 shrinkedSegments = getShrinkedSegments(segmentkeys_before, segmentkeys_after)
-if len(shrinkedSegments) > 0:
-    pids = getProcesses()
-    for ss in shrinkedSegments:
-        pid = pids[ss]
-        print "Will send SIGUSR2 to %i"%(pid)
-        os.kill(pid,signal.SIGUSR2)
-
+segmentPids = getProcesses()
+for segment in segmentPids:
+    pid = segmentPids[segment] 
+    print "Sending SIGHUP to %i"%(pid)
+    os.kill(pid,signal.SIGHUP)
+for segment in shrinkedSegments:
+    pid = segmentPids[segment]
+    print "Will send SIGUSR2 to %i"%(pid)
+    os.kill(pid,signal.SIGUSR2)
 
 
