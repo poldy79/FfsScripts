@@ -4,6 +4,7 @@ import os
 import psutil
 import signal
 import git
+import argparse
 
 def _testRemoveKey(segmentkeys):
     import copy
@@ -81,7 +82,13 @@ def gitPull(basedir):
     o = repo.remotes.origin
     o.pull()
 
-basedir = "/etc/fastd"
+parser = argparse.ArgumentParser(description='Updates peer files and sends signals to fastd')
+parser.add_argument('--repo',dest='basedir',action='store',required=True,help='path to repo')
+
+args = parser.parse_args()
+
+
+basedir = args.basedir
 segmentkeys_before = getAllKeys(basedir)
 
 gitPull(basedir)
@@ -95,7 +102,7 @@ shrinkedSegments = getShrinkedSegments(segmentkeys_before, segmentkeys_after)
 segmentPids = getProcesses()
 for segment in segmentPids:
     pid = segmentPids[segment] 
-    print "Sending SIGHUP to %i"%(pid)
+    #print "Sending SIGHUP to %i"%(pid)
     os.kill(pid,signal.SIGHUP)
 for segment in shrinkedSegments:
     pid = segmentPids[segment]
