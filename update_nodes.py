@@ -42,13 +42,22 @@ parser.add_argument('--alfred-159', dest='alfred159', action='store',
                         required=True,
                    help='Alfred 159 channel data')
 
-parser.add_argument('--nodes-', dest='nodes', action='store',
+parser.add_argument('--nodes', dest='nodes', action='store',
                         required=True,
                    help='nodes file')
 
-parser.add_argument('--mail-', dest='mailaddr', action='store',
+parser.add_argument('--nodes_map', dest='nodes_map', action='store',
                         required=True,
-                   help='nodes file')
+                   help='nodes_map file')
+
+parser.add_argument('--mailto', dest='mailto', action='store',
+                        required=True,
+                   help='mail to')
+
+parser.add_argument('--mailfrom', dest='mailfrom', action='store',
+                        required=True,
+                   help='mail from')
+
 
 args = parser.parse_args()
 
@@ -66,7 +75,11 @@ def getFastdConnections(node,gk):
         fastd.sort()
         return fastd
 
-
+def getSegment(gateway):
+    try:
+        return int(gateway.split(":")[4])
+    except:
+        return None
 
 fp158 = open(args.alfred158,"rb")
 fp159 = open(args.alfred159,"rb")
@@ -91,24 +104,31 @@ for mac in nodes_online_info:
 	if not nodes_all.has_key(mac):
 		#totaly new node
 		nodes_all[mac] = {}		
+                name = None
 		try:
 			name = nodes_online_info[mac]["hostname"]
-			mail.send(args.mailaddr,args.mailaddr,"New Node anounced","MAC: %s\nName: %s\n"%(mac,name))
+			mail.send(args.mailfrom,args.mailto,"New Node anounced","MAC: %s\nName: %s\n"%(mac,name))
 		except:
-			print "Error sending mail"
+			print "Error sending mail for mac %s"%(mac)
+                        print name
 			pass
+hiddenNodes = []
+
 
 for mac in nodes_all:
 	n = nodes_all[mac]
 	if n.has_key("owner"):
 		n.pop("owner")
-	if not nodes_online_info.has_key(mac):
+	if not nodes_online_info.has_key(mac) or not nodes_online_status.has_key(mac):
 		n["status"] = "offline"
 		n["clients"]["total"] = 0
 		n["clients"]["wifi"] = 0
 		n["gateway"] = ""
 		n["fastd"] = []
-	else:
+                deltaWeek = 7*24*60*60
+                if n["last_online"] < int(time.time())-deltaWeek:
+                    hiddenNodes.append(mac)
+        else:
 		no = nodes_online_info[mac]
 		nos = nodes_online_status[mac]
 		n["status"] = "online"
@@ -117,6 +137,7 @@ for mac in nodes_all:
 		n["network"] = no["network"]
 		if nos.has_key("gateway"):
 			n["gateway"] = nos["gateway"]
+                        n["segment"] = getSegment(nos["gateway"])
 		else:
 			n["gateway"] = ""
 		if no.has_key("location"):
@@ -131,9 +152,15 @@ for mac in nodes_all:
 		n["fastd"] = getFastdConnections(mac,gk)
 
 fp_nodes_all = open(args.nodes,"wb")
-
 fp_nodes_all.write( json.dumps(nodes_all,sort_keys=True, indent=4, separators=(',', ': ')))
-
 fp_nodes_all.close()
+
+for hidden in hiddenNodes:
+    del nodes_all[hidden]
+
+fp_nodes_all = open(args.nodes_map,"wb")
+fp_nodes_all.write( json.dumps(nodes_all,sort_keys=True, indent=4, separators=(',', ': ')))
+fp_nodes_all.close()
+
 
 

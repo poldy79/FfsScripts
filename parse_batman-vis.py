@@ -16,21 +16,16 @@ parser.add_argument('--batadv-vis', dest='batadvvis', action='store',
                                 required=True,
                                                    help='batman-vis json')
 
-parser.add_argument('--nodes', dest='nodes', action='store',
-                                required=True,
-                                                   help='nodes file')
-
 args = parser.parse_args()
 
 
 
-fp_nodes = open(args.nodes,"rb")
-nodes = json.load(fp_nodes)
-fp_nodes.close()
-
 fp_mesh = open(args.batadvvis,"rb")
 mesh = fp_mesh.read().strip().split("\n")
 fp_mesh.close()
+if len(mesh) == 1 and mesh[0] == '':
+    mesh = []
+
 
 primary = {}
 secondary = {}
