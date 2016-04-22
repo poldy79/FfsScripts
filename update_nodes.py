@@ -135,6 +135,7 @@ for mac in nodes_all:
 		n["hostname"] = no["hostname"]
 		n["hardware"] = no["hardware"]
 		n["network"] = no["network"]
+                n["loadavg"] = nos["loadavg"]
 		if nos.has_key("gateway"):
 			n["gateway"] = nos["gateway"]
                         n["segment"] = getSegment(nos["gateway"])
