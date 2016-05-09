@@ -2,7 +2,7 @@
 import json
 import time
 
-#from georeference import getRegion, getRegions
+from georeference import getRegion, getRegions
 
 import email
 import smtplib

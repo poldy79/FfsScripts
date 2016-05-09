@@ -6,6 +6,7 @@ import math
 import matplotlib.patches as patches
 import pylab
 import json
+import os
 
 #http://ra.osmsurround.org/searchRelation?name=Nordrhein-Westfalen&relationType=&route=&ref=&network=&operator=
 #http://polygons.openstreetmap.fr/index.py
@@ -35,13 +36,12 @@ def displayPoly(pp):
 
 
 polygons = {}
-files = glob("segments/*.json")
+files = glob(os.path.dirname(os.path.realpath(__file__))+"/segments/*.json")
 for filename in files:
-	segment = filename.split("/")[1].split(".")[0]
+	segment = os.path.basename(filename.split(".")[0])
 	fp = open(filename,"rb")
 	geojson = json.load(fp)
 	fp.close()
-	trksegs = []
 	#print segment
 	trk = geojson["geometries"][0]["coordinates"][0][0]
 	#print len(trk)
