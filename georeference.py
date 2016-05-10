@@ -1,11 +1,11 @@
 #!/usr/bin/python
+import ujson as json
 from shapely.geometry import Point
 from shapely.geometry.polygon import Polygon
 from glob import glob
 import math
 import matplotlib.patches as patches
 import pylab
-import json
 import os
 
 #http://ra.osmsurround.org/searchRelation?name=Nordrhein-Westfalen&relationType=&route=&ref=&network=&operator=

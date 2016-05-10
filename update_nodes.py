@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import json
+import ujson as json
 import time
 
 from georeference import getRegion, getRegions
@@ -175,14 +175,16 @@ for mac in nodes_all:
             hiddenNodes.append(mac)
 
 fp_nodes_all = open(args.nodes,"wb")
-fp_nodes_all.write( json.dumps(nodes_all,sort_keys=True, indent=4, separators=(',', ': ')))
+#fp_nodes_all.write( json.dumps(nodes_all,sort_keys=True, indent=4, separators=(',', ': ')))
+fp_nodes_all.write( json.dumps(nodes_all,sort_keys=True))
 fp_nodes_all.close()
 
 for hidden in hiddenNodes:
     del nodes_all[hidden]
 
 fp_nodes_all = open(args.nodes_map,"wb")
-fp_nodes_all.write( json.dumps(nodes_all,sort_keys=True, indent=4, separators=(',', ': ')))
+#fp_nodes_all.write( json.dumps(nodes_all,sort_keys=True, indent=4, separators=(',', ': ')))
+fp_nodes_all.write( json.dumps(nodes_all,sort_keys=True))
 fp_nodes_all.close()
 
 
