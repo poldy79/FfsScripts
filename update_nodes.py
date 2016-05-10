@@ -144,9 +144,12 @@ for mac in nodes_all:
             n["gateway"] = ""
         if no.has_key("location"):
             n["location"] = no["location"]        
+            if "longitude" in n["location"] and "latitude" in n["location"]:
+                n["region"] = getRegion(n["location"]["latitude"],n["location"]["longitude"])
         else:
             if n.has_key("location"):
                 n.pop("location")
+                n["region"] = "No Location"
         n["software"] = no["software"]
         n["last_online"] = int(time.time())
         n["last_alfred"] = int(time.time())

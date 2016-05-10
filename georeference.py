@@ -36,7 +36,7 @@ def displayPoly(pp):
 
 
 polygons = {}
-files = glob(os.path.dirname(os.path.realpath(__file__))+"/segments/*.json")
+files = glob(os.path.dirname(os.path.realpath(__file__))+"/segments/*/*.json")
 for filename in files:
 	segment = os.path.basename(filename.split(".")[0])
 	fp = open(filename,"rb")
