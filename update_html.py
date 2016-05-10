@@ -2,7 +2,6 @@
 import codecs
 import json
 import argparse
-from georeference import getRegion, getRegions
 import time
 from time import strftime
 
@@ -30,10 +29,6 @@ parser.add_argument('--alfred-159', dest='alfred159', action='store',
 args = parser.parse_args()
 
 regions = {"No Location":{ "nodes":0,"clients":0} , "Unknown Region":  { "nodes":0, "clients":0 }}
-
-for r in getRegions():
-    regions[r] = { "nodes":0,"clients":0} 
-
 
 def getFastdConnections(node):
 	mesh_fp = open(args.mesh,"rb")
@@ -128,6 +123,8 @@ for node in nodes_info:
 				regions["Unknown Region"]["clients"] += int(n['clients']['total'])
 		else:
 			if n["status"] == "online":
+                                if not location in regions:
+                                    regions[location] = {"nodes":0, "clients":0}
 				regions[location]["nodes"] +=1
 				regions[location]["clients"] += int(n['clients']['total'])
 	else:

@@ -171,9 +171,6 @@ for mac in nodes_all:
         n["gateway"] = ""
         n["fastd"] = []
         deltaWeek = 7*24*60*60
-        if n.has_key("location"):
-            if "longitude" in n["location"] and "latitude" in n["location"]:
-                n["region"] = getRegion(n["location"]["latitude"],n["location"]["longitude"])
         if n["last_online"] < int(time.time())-deltaWeek:
             hiddenNodes.append(mac)
 
