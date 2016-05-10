@@ -117,7 +117,10 @@ for node in nodes_info:
         if n.has_key('location') and n["location"].has_key("latitude") and n["location"].has_key("longitude"):
 		location='yes'
 		locationcount+=1
-		location = getRegion(n["location"]["latitude"],n["location"]["longitude"])
+                if "region" in n:
+    		    location = n["region"]
+                else:
+                    location = "Outside"
 		if location == "Outside":
 			location = "Raw: %f,%f"%(n["location"]["latitude"],n["location"]["longitude"])
 			if n["status"] == "online":
