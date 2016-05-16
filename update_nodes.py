@@ -2,7 +2,7 @@
 import ujson as json
 import time
 
-from georeference import getRegion, getRegions
+from georeference import getRegion
 
 import email
 import smtplib
@@ -145,7 +145,7 @@ for mac in nodes_all:
         if no.has_key("location"):
             n["location"] = no["location"]        
             if "longitude" in n["location"] and "latitude" in n["location"]:
-                n["region"] = getRegion(n["location"]["latitude"],n["location"]["longitude"])
+                (n["region"],n["desiredSegment"]) = getRegion(n["location"]["latitude"],n["location"]["longitude"])
         else:
             if n.has_key("location"):
                 n.pop("location")
