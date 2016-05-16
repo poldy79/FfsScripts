@@ -36,32 +36,38 @@ def displayPoly(pp):
 
 
 polygons = {}
+regions = {}
+
+
+
 files = glob(os.path.dirname(os.path.realpath(__file__))+"/segments/*/*.json")
 for filename in files:
-    segment = os.path.basename(filename.split(".")[0])
+    region = os.path.basename(filename.split(".")[0])
+    segment = os.path.dirname(filename).split("/")[-1]
     fp = open(filename,"rb")
     geojson = json.load(fp)
     fp.close()
-    #print segment
     trk = geojson["geometries"][0]["coordinates"][0][0]
-    #print len(trk)
     array = []
     for t in trk:
         array.append( (t[1],t[0]))
     polygon = Polygon(array)
-    #print polygon.is_valid
-    #displayPoly(trk)
-    polygons[segment] = polygon
+    polygons[region] = polygon
+    regions[region] = segment
 
 def getRegions():
 	return polygons.keys()
 	
 def getRegion(lat,lon):
-	point= Point(lat,lon)
-	result = "Outside"
-	for polygon in polygons:
-		if polygons[polygon].contains(point):
-			return polygon
-	return result
+        point= Point(lat,lon)
+        result = "Outside"
+        segment = "undefined"
+        for polygon in polygons:
+                if polygons[polygon].contains(point):
+                    result =  polygon
+                    break
+        if result in regions:
+            segment = regions[result]
+        return (result,segment)
 
 #print getRegion(48.78679199385324,9.189022779464722)
