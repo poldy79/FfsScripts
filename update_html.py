@@ -73,17 +73,24 @@ nodesPerSegment = {}
 clientsPerSegment = {}
 nodesPerGw = {}
 clientsPerGw = {}
-
+nodesInWrongSegment = 0
+nodesInWrongSegmentAndOnline = 0
 locationcount = 0
 clients = 0
 alfredErrors = []
 nodesTotal = 0
 html = ""
-html+= '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">'
-html+= "<html><body>"
-table = ""
+html2 = ""
+head= '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">'
+head+= "<html>"
+head+= '<head><script type="text/javascript" language="javascript" src="tablefilter/tablefilter.js"></script></head>'
+head+= "<body>"
+html+=head
+html2+=head
 
-table+= '<table border="1"><tr><th>Node</th><th>Mac</th><th>Status</th><th>Load</th><th>Seg</th><th>Clients</th><th>GW</th><th>fastd</th><th>Model</th><th>location</th><th>update</th><th>gluon</th><th>release</th><th>IP</th></tr>'
+
+
+table= '<table id="table1" cellspacing="0" class="mytable filterable"><tr><th>Node</th><th>Mac</th><th>Status</th><th>Load</th><th>Seg</th><th>DestSeg</th><th>Clients</th><th>GW</th><th>fastd</th><th>Model</th><th>location</th><th>update</th><th>gluon</th><th>release</th><th>IP</th></tr>'
 online = 0
 gateways= {}
 nodes = {}
@@ -161,10 +168,20 @@ for node in nodes_info:
 		gateways[gateway]["nodes"] +=1
 		gateways[gateway]["clients"] += totalclients
         if n.has_key("segment"):
-            segment = n["segment"] 
+            segment = "%02i"%(n["segment"])
         if not segment in clientsPerSegment:
             clientsPerSegment[segment] = 0
         clientsPerSegment[segment] += totalclients
+        desiredSegment = "?"
+        if "desiredSegment" in n:
+            desiredSegment = n["desiredSegment"]
+            if desiredSegment != segment:
+                desiredSegment="<font color=#FF0000>%s</font>"%(n["desiredSegment"])
+                nodesInWrongSegment+=1
+                if n["status"] == "online":
+                    nodesInWrongSegmentAndOnline+=1
+            if n["desiredSegment"] == "undefined":
+                desiredSegment = "?"
         if len(gateway) > 0:
             if not getGwInstance(gateway) in clientsPerGw:
                 clientsPerGw[getGwInstance(gateway)] = 0
@@ -222,53 +239,79 @@ for node in nodes_info:
 	fastd = ",".join(fastd)	
         
 
-        nodes[node] = {"segment": segment, "hostname": hostname, "mac": node, "status": status,"mesh_status": mesh_status,"fastd": fastd,  "wificlients": wificlients, "totalclients": totalclients, "model": model, "location":location, "update": branch ,"gluon": base , "release": release, "ip":ip, "gateway": gateway, "loadavg":loadavg }
+        nodes[node] = {"segment": segment, "desiredSegment":desiredSegment , "hostname": hostname, "mac": node, "status": status,"mesh_status": mesh_status,"fastd": fastd,  "wificlients": wificlients, "totalclients": totalclients, "model": model, "location":location, "update": branch ,"gluon": base , "release": release, "ip":ip, "gateway": gateway, "loadavg":loadavg }
 
 nodes_list.sort()
 for hostname,node in nodes_list:
 	node_data = nodes[node]
-	table+="<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"%(node_data["hostname"],node_data['mac'],node_data['status'],node_data["loadavg"], node_data["segment"] , node_data['totalclients'],node_data['gateway'],node_data["fastd"],node_data['model'],node_data['location'],node_data['update'],node_data['gluon'],node_data['release'],node_data ['ip'])
+	table+="<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"%(node_data["hostname"],node_data['mac'],node_data['status'],node_data["loadavg"], node_data["segment"] , node_data["desiredSegment"],node_data['totalclients'],node_data['gateway'],node_data["fastd"],node_data['model'],node_data['location'],node_data['update'],node_data['gluon'],node_data['release'],node_data ['ip'])
 
 table +="</table>"
 
-html += "Generated: %s"%(strftime("%Y-%m-%d %H:%M:%S"))
-html += "<p/>Nodes total: %i<br/>"%(nodesTotal)
-html +="Nodes online: %i<br/>"%(online)
-html += "Nodes with location: %i<br/>"%(locationcount)
-html+= "Wifi-Clients: %i<br/>"%(clients)
-html+="Alfred Errors %i (%s)<br/>"%(len(alfredErrors),",".join(alfredErrors))
+table += '''
+<script language="javascript" type="text/javascript">  
+    //<![CDATA[
+    var filtersConfig = {
+        base_path: 'tablefilter/',
+        auto_filter: true,
+        auto_filter_delay: 1100, //milliseconds
+        filters_row_index: 1,
+        state: true,
+        alternate_rows: true,
+        rows_counter: true,
+        rows_counter_text: "Rows: ",
+        btn_reset: true,
+        status_bar: true,
+        msg_filter: 'Filtering...'
+    };
+    var tf = new TableFilter('table1', filtersConfig);
+    tf.init();
+    //]]>
+</script> 
+'''
 
-segmentTable = "<table border=1>\n"
+html2 += "Generated: %s"%(strftime("%Y-%m-%d %H:%M:%S"))
+html2 += "<p/>Nodes total: %i<br/>"%(nodesTotal)
+html2 +="Nodes online: %i<br/>"%(online)
+html2 += "Nodes with location: %i<br/>"%(locationcount)
+html2+= "Wifi-Clients: %i<br/>"%(clients)
+html2+="Alfred Errors %i (%s)<br/>"%(len(alfredErrors),",".join(alfredErrors))
+html2 += "Nodes in wrong segment: %i<br/>"%(nodesInWrongSegment)
+html2 += "Nodes in wrong segment and online: %i<br/>"%(nodesInWrongSegmentAndOnline)
+segmentTable = "<table id='table2' border=1>\n"
 segmentTable += "<tr><th>Segment</th><th>Nodes</th><th>Clients</th></tr>\n"
-for s in nodesPerSegment:
-    segmentTable+= "<tr><td>%i</td><td>%i</td><td>%i</td></tr>"%(s,nodesPerSegment[s],clientsPerSegment[s])
+nodesPerSegmentArray = nodesPerSegment.keys()
+nodesPerSegmentArray.sort()
+for s in nodesPerSegmentArray:
+    segmentTable+= "<tr><td>%s</td><td>%i</td><td>%i</td></tr>"%(s,nodesPerSegment[s],clientsPerSegment[s])
 segmentTable+="</table><p/>"
-html+=segmentTable
+html2+=segmentTable
 
-gatewayTable = "<table border=1>\n"
+gatewayTable = "<table id='table3' border=1>\n"
 gatewayTable += "<tr><th>Gateway</th><th>Nodes</th><th>Clients</th></tr>\n"
 nodesPerGwSorted = nodesPerGw.keys()
 nodesPerGwSorted.sort()
 for s in nodesPerGwSorted:
     gatewayTable += "<tr><td>%s</td><td>%i</td><td>%i</td></tr>"%(s,nodesPerGw[s],clientsPerGw[s])
 gatewayTable += "</table><p/>"
-html+=gatewayTable
+html2+=gatewayTable
 
 import operator
 #sorted_regions = sorted(regions.items(), key=operator.itemgetter(1), reverse=True)
 #for r in sorted_regions:
 #	html += "%s: %i<br/>"%(r[0],r[1])
-html+="<table border='1'>\n\t<tr><th>Region</th><th>Nodes</th><th>Clients</th></tr>\n"
-for r in regions:
+html2+="<table id='table4' border='1'>\n\t<tr><th>Region</th><th>Nodes</th><th>Clients</th></tr>\n"
+regionsArray = regions.keys()
+regionsArray.sort()
+for r in regionsArray:
         nodes = regions[r]["nodes"]
         clients = regions[r]["clients"]
-	html += "\t<tr><td>%s</td><td>%i</td><td>%i</td></tr>\n"%(r,nodes,clients)
-html += "</table>"
+	html2 += "\t<tr><td>%s</td><td>%i</td><td>%i</td></tr>\n"%(r,nodes,clients)
+html2 += "</table>"
 for g in gk:
-	html+="%s: Nodes: %i Clients: %i<br/>"%(g,gateways[g]["nodes"],gateways[g]["clients"])
-html +='<p/><a href="map/">Karte</a>'
+	html2+="%s: Nodes: %i Clients: %i<br/>"%(g,gateways[g]["nodes"],gateways[g]["clients"])
 fp = codecs.open(args.output.replace("nodes.html","status.html"),"w","utf-8")
-fp.write(html+"</body></html>")
+fp.write(html2+"</body></html>")
 fp.close()
 
 
