@@ -6,6 +6,22 @@ import signal
 import git
 import argparse
 
+def test():
+    before = getAllKeys("/etc/fastd/peers-ffs")
+    after = getAllKeys("/etc/fastd/peers-ffs")
+    after["vpn04"].pop()
+    shrinkedSegments = getShrinkedSegments(before, after)
+    segmentPids = getProcesses()
+    for segment in segmentPids:
+        pid = segmentPids[segment] 
+        print "Sending SIGHUP to %i"%(pid)
+        #os.kill(pid,signal.SIGHUP)
+    for segment in shrinkedSegments:
+        pid = segmentPids[segment]
+        print "Will send SIGUSR2 to %i"%(pid)
+        #os.kill(pid,signal.SIGUSR2)
+
+
 def _testRemoveKey(segmentkeys):
     import copy
     import random
@@ -25,19 +41,20 @@ def getProcesses():
             pass
         else:
             if pinfo["name"] == "fastd":
-                #print(pinfo)
                 config = pinfo["cmdline"][pinfo["cmdline"].index("--config")+1]
-                segment = "/".join(config.split("/")[0:4])
-                #print "%s: %i"%(segment,pinfo["pid"])
+                segment = os.path.dirname(config).rsplit("/",1)[1]
                 pids[segment] = pinfo["pid"]
     return pids
 
 def getSegments(basedir):
-    segments = glob.glob("%s/vpn*"%(basedir))
+    segments = []
+    segmentDirs = glob.glob("%s/vpn*"%(basedir))
+    for s in segmentDirs:
+        segments.append(s.rsplit("/",1)[1])
     return segments
 
-def getPeers(segment):
-    peers = glob.glob("%s/peers/*"%segment)
+def getPeers(basedir,segment):
+    peers = glob.glob("%s/%s/peers/*"%(basedir,segment))
     return peers
 
 def getKeys(peers):
@@ -65,7 +82,7 @@ def getAllKeys(basedir):
     segments =  getSegments(basedir)
     segmentkeys = {}
     for s in segments:
-        peers = getPeers(s)
+        peers = getPeers(basedir,s)
         segmentkeys[s] = getKeys(peers)
     return segmentkeys
 
@@ -82,31 +99,32 @@ def gitPull(basedir):
     o = repo.remotes.origin
     o.pull()
 
-parser = argparse.ArgumentParser(description='Updates peer files and sends signals to fastd')
-parser.add_argument('--repo',dest='basedir',action='store',required=True,help='path to repo')
 
-args = parser.parse_args()
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Updates peer files and sends signals to fastd')
+    parser.add_argument('--repo',dest='basedir',action='store',required=True,help='path to repo')
+
+    args = parser.parse_args()
 
 
-basedir = args.basedir
-segmentkeys_before = getAllKeys(basedir)
+    basedir = args.basedir
+    segmentkeys_before = getAllKeys(basedir)
 
-gitPull(basedir)
+    gitPull(basedir)
 
-segmentkeys_after = getAllKeys(basedir)
-#segmentkeys_after = _testRemoveKey(segmentkeys_after)
+    segmentkeys_after = getAllKeys(basedir)
+    #segmentkeys_after = _testRemoveKey(segmentkeys_after)
 
-#printSegmentkeys(segmentkeys_before)
-#printSegmentkeys(segmentkeys_after)
-shrinkedSegments = getShrinkedSegments(segmentkeys_before, segmentkeys_after)
-segmentPids = getProcesses()
-for segment in segmentPids:
-    pid = segmentPids[segment] 
-    #print "Sending SIGHUP to %i"%(pid)
-    os.kill(pid,signal.SIGHUP)
-for segment in shrinkedSegments:
-    pid = segmentPids[segment]
-    print "Will send SIGUSR2 to %i"%(pid)
-    os.kill(pid,signal.SIGUSR2)
-
+    #printSegmentkeys(segmentkeys_before)
+    #printSegmentkeys(segmentkeys_after)
+    shrinkedSegments = getShrinkedSegments(segmentkeys_before, segmentkeys_after)
+    segmentPids = getProcesses()
+    for segment in segmentPids:
+        pid = segmentPids[segment] 
+        #print "Sending SIGHUP to %i"%(pid)
+        os.kill(pid,signal.SIGHUP)
+    for segment in shrinkedSegments:
+        pid = segmentPids[segment]
+        print "Will send SIGUSR2 to %i"%(pid)
+        os.kill(pid,signal.SIGUSR2)
 
