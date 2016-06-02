@@ -13,6 +13,35 @@ def getGateways():
             gateways.append(line.split(" ")[0])
     return gateways
 
+def getGatewaysPerInterface():
+    gateways = {}
+    files = glob.glob("/sys/kernel/debug/batman_adv/bat*/gateways")
+    for f in files:
+        fp = open(f,"rb")
+        data = fp.read()
+        fp.close()
+        line = data.split("\n")[0]
+        interface = line.split("MainIF/MAC: ")[1].split(" ")[1][1:-2]
+        gateways[interface] = []
+        for line in data.strip().split("\n")[1:]:
+            line = line.strip()
+            gateways[interface].append(line.split(" ")[0])
+    return gateways
+
+def getMacs():
+    macs = {}
+    files = glob.glob("/sys/kernel/debug/batman_adv/bat*/gateways")
+    for f in files:
+        fp = open(f,"rb")
+        data = fp.read()
+        fp.close()
+        line = data.split("\n")[0]
+        mac = line.split("MainIF/MAC: ")[1].split(" ")[0].split("/")[1]
+        interface = line.split("MainIF/MAC: ")[1].split(" ")[1][1:-2]
+        macs[interface] = mac
+    return macs
+
+
 def getTranstableGlobal():
     t = {}
     files = glob.glob("/sys/kernel/debug/batman_adv/bat*/transtable_global")
