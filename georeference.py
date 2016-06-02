@@ -16,7 +16,7 @@ import os
 #Relation Boundary finden:
 #http://ra.osmsurround.org/searchRelation?name=Stuttgart&relationType=boundary&route=&ref=&network=&operator=
 
-relations = { "Stuttgart": 2793104, "Boeblingen":  62721, "Esslingen": 2812851, "Rems-Murr-Kreis": 62412 , "Ludwigsburg": 62536 , "Goeppingen":  2812852, "Reutlingen": 2796980, "Heidenheim ": 2812850, "Heilbronn": 62750 ,"Ostalbkreis": 62708,"Pforzheim": 3146849, "Tuebingen": 2797036, "Schwaebisch-Hall": 62582, "Ortenaukreis": 62624, "Zollernalbkreis": 2797573, "Neckar-Odenwald-Kreis": 62626, "Calw": 62601, "Rheinland-Pfalz": 62341, "Saarland": 62372, "Alb-Donau-Kreis": 2804078 , "Bayern": 2145268 , "Bodenseekreis": 2806623, "Rottweil": 62344, "Schwarzwald-Baar-Kreis": 62690 , "Hohenlohekreis": 62394, "Nordrhein-Westfalen": 62761, "Hessen": 3997055}
+relations = { "Stuttgart": 2793104, "Boeblingen":  62721, "Esslingen": 2812851, "Rems-Murr-Kreis": 62412 , "Ludwigsburg": 62536 , "Goeppingen":  2812852, "Reutlingen": 2796980, "Heidenheim ": 2812850, "Heilbronn": 62750 ,"Ostalbkreis": 62708,"Pforzheim": 3146849, "Tuebingen": 2797036, "Schwaebisch-Hall": 62582, "Ortenaukreis": 62624, "Zollernalbkreis": 2797573, "Neckar-Odenwald-Kreis": 62626, "Calw": 62601, "Rheinland-Pfalz": 62341, "Saarland": 62372, "Alb-Donau-Kreis": 2804078 , "Bayern": 2145268 , "Bodenseekreis": 2806623, "Rottweil": 62344, "Schwarzwald-Baar-Kreis": 62690 , "Hohenlohekreis": 62394, "Nordrhein-Westfalen": 62761, "Hessen": 3997055, "Biberach": 2804156}
 
 for r in relations:
     if False:
@@ -47,7 +47,13 @@ for filename in files:
     fp = open(filename,"rb")
     geojson = json.load(fp)
     fp.close()
-    trk = geojson["geometries"][0]["coordinates"][0][0]
+    if "geometries" in geojson:
+        trk = geojson["geometries"][0]["coordinates"][0][0]
+    elif "coordinates" in geojson:
+        trk = geojson["coordinates"][0][0]
+    else:
+        print "Problem parsing %s"%filename
+        continue
     array = []
     for t in trk:
         array.append( (t[1],t[0]))
