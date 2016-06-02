@@ -1,6 +1,18 @@
 #!/usr/bin/python
 import glob
 
+def getGateways():
+    gateways = []
+    files = glob.glob("/sys/kernel/debug/batman_adv/bat*/gateways")
+    for f in files:
+        fp = open(f,"rb")
+        data = fp.read()
+        fp.close()
+        for line in data.strip().split("\n")[1:]:
+            line = line.strip()
+            gateways.append(line.split(" ")[0])
+    return gateways
+
 def getTranstableGlobal():
     t = {}
     files = glob.glob("/sys/kernel/debug/batman_adv/bat*/transtable_global")
