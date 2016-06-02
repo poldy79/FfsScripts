@@ -90,7 +90,7 @@ html2+=head
 
 
 
-table= '<table id="table1" cellspacing="0" class="mytable filterable"><tr><th>Node</th><th>Mac</th><th>Status</th><th>Load</th><th>Seg</th><th>DestSeg</th><th>Clients</th><th>GW</th><th>fastd</th><th>Model</th><th>location</th><th>update</th><th>gluon</th><th>release</th><th>IP</th></tr>'
+table= '<table id="table1" cellspacing="0" class="mytable filterable"><tr><th>Node</th><th>Mac</th><th>Status</th><th>Load</th><th>Seg</th><th>DestSeg</th><th>Clients</th><th>mesh</th><th>GW</th><th>fastd</th><th>Model</th><th>location</th><th>update</th><th>gluon</th><th>release</th><th>IP</th></tr>'
 online = 0
 gateways= {}
 nodes = {}
@@ -167,7 +167,7 @@ for node in nodes_info:
 			gateways[gateway] = {"nodes":0, "clients":0}
 		gateways[gateway]["nodes"] +=1
 		gateways[gateway]["clients"] += totalclients
-        if n.has_key("segment"):
+        if n.has_key("segment") and n["segment"] != None:
             segment = "%02i"%(n["segment"])
         if not segment in clientsPerSegment:
             clientsPerSegment[segment] = 0
@@ -237,14 +237,16 @@ for node in nodes_info:
                 if peers[peer] != None:
                     fastd.append(peer)
 	fastd = ",".join(fastd)	
-        
+        neighbours = 0
+        if "neighbours" in n:
+            neighbours = len(n["neighbours"])
 
-        nodes[node] = {"segment": segment, "desiredSegment":desiredSegment , "hostname": hostname, "mac": node, "status": status,"mesh_status": mesh_status,"fastd": fastd,  "wificlients": wificlients, "totalclients": totalclients, "model": model, "location":location, "update": branch ,"gluon": base , "release": release, "ip":ip, "gateway": gateway, "loadavg":loadavg }
+        nodes[node] = {"neighbours": neighbours , "segment": segment, "desiredSegment":desiredSegment , "hostname": hostname, "mac": node, "status": status,"mesh_status": mesh_status,"fastd": fastd,  "wificlients": wificlients, "totalclients": totalclients, "model": model, "location":location, "update": branch ,"gluon": base , "release": release, "ip":ip, "gateway": gateway, "loadavg":loadavg }
 
 nodes_list.sort()
 for hostname,node in nodes_list:
 	node_data = nodes[node]
-	table+="<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"%(node_data["hostname"],node_data['mac'],node_data['status'],node_data["loadavg"], node_data["segment"] , node_data["desiredSegment"],node_data['totalclients'],node_data['gateway'],node_data["fastd"],node_data['model'],node_data['location'],node_data['update'],node_data['gluon'],node_data['release'],node_data ['ip'])
+	table+="<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%i</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>"%(node_data["hostname"],node_data['mac'],node_data['status'],node_data["loadavg"], node_data["segment"] , node_data["desiredSegment"],node_data['totalclients'],node_data["neighbours"], node_data['gateway'],node_data["fastd"],node_data['model'],node_data['location'],node_data['update'],node_data['gluon'],node_data['release'],node_data ['ip'])
 
 table +="</table>"
 
