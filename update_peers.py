@@ -3,7 +3,6 @@ import glob
 import os
 import psutil
 import signal
-import git
 import argparse
 import json
 import socket
@@ -124,22 +123,11 @@ def getAllKeys(basedir):
 
 def getShrinkedSegments(before,after):
     shrinkedSegments = {}
-    for s in after:
-        for key in before[s]:
-            if not key in after[s]:
-                shrinkedSegments[s] = True
+    for segment in after:
+        for key in before[segment]:
+            if not key in after[segment]:
+                shrinkedSegments[segment] = True
     return shrinkedSegments.keys()
-
-def gitPull(basedir):
-    repo = git.Repo(basedir)
-    o = repo.remotes.origin
-    try:
-        time.sleep(1)
-        o.pull()
-    except:
-        print "Error during pull!"
-        return False
-    return True
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Updates peer files and sends signals to fastd')
@@ -148,14 +136,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     basedir = args.basedir
-
-    result = False
-    retries = 3
-    while not result:
-        result = gitPull(basedir)
-        retries -=1
-        if retries == 0:
-            break
 
     segmentkeys_after = getAllKeys(basedir)
 
