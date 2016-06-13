@@ -7,23 +7,6 @@ import argparse
 import json
 import socket
 import time
-def test():
-    before = getAllKeys("/etc/fastd/peers-ffs")
-    after = getAllKeys("/etc/fastd/peers-ffs")
-    after["vpn04"].pop()
-    #shrinkedSegments = getShrinkedSegments(before, after)
-    segmentPids = getProcesses()
-    sockets = getSockets(segmentPids)
-    activeKeys = getAllActiveKeys(sockets)
-    shrinkedSegments = getShrinkedSegments(activeKeys,after)
-    for segment in segmentPids:
-        pid = segmentPids[segment] 
-        print "Would send SIGHUP to %i"%(pid)
-        #os.kill(pid,signal.SIGHUP)
-    for segment in shrinkedSegments:
-        pid = segmentPids[segment]
-        print "Would send SIGUSR2 to %i"%(pid)
-        #os.kill(pid,signal.SIGUSR2)
 
 def readFromSocket(f):
     s = socket.socket(socket.AF_UNIX,socket.SOCK_STREAM)
@@ -60,9 +43,9 @@ def getProcesses():
                 segment = os.path.dirname(config).rsplit("/",1)[1]
                 pids[segment] = pinfo["pid"]
                 p = psutil.Process(pinfo["pid"])
-                for f in p.get_connections(kind="unix")[0].laddr:
-                    if "sock" in f:
-                        socket = f
+                #for f in p.get_connections(kind="unix")[0].laddr:
+                #    if "sock" in f:
+                #        socket = f
     return pids
 
 def getSockets(pids):
@@ -71,7 +54,7 @@ def getSockets(pids):
         pid = pids[segment]
         p = psutil.Process(pid)
         for f in p.get_connections(kind="unix"):
-            if "sock" in f.laddr:
+            if f.laddr.startswith("/var/run"):
                 sockets[segment] = f.laddr
     return sockets
 
@@ -124,9 +107,10 @@ def getAllKeys(basedir):
 def getShrinkedSegments(before,after):
     shrinkedSegments = {}
     for segment in after:
-        for key in before[segment]:
-            if not key in after[segment]:
-                shrinkedSegments[segment] = True
+        if segment in before:
+            for key in before[segment]:
+                if not key in after[segment]:
+                    shrinkedSegments[segment] = True
     return shrinkedSegments.keys()
 
 if __name__ == "__main__":
