@@ -21,7 +21,8 @@ def getGatewaysPerInterface():
         data = fp.read()
         fp.close()
         line = data.split("\n")[0]
-        interface = line.split("MainIF/MAC: ")[1].split(" ")[1][1:-2]
+        test = "[B.A.T.M.A.N. adv 2016.2-127-g4f47cce, MainIF/MAC: vpn01/02:00:38:01:01:00 (bat01 BATMAN_IV)]"
+        interface = line.split("MainIF/MAC: ")[1].split(" ")[1][1:]
         gateways[interface] = []
         for line in data.strip().split("\n")[1:]:
             line = line.strip()
@@ -37,7 +38,7 @@ def getMacs():
         fp.close()
         line = data.split("\n")[0]
         mac = line.split("MainIF/MAC: ")[1].split(" ")[0].split("/")[1]
-        interface = line.split("MainIF/MAC: ")[1].split(" ")[1][1:-2]
+        interface = line.split("MainIF/MAC: ")[1].split(" ")[1][1:]
         macs[interface] = mac
     return macs
 
