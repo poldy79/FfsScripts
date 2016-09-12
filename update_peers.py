@@ -53,7 +53,15 @@ def getSockets(pids):
     for segment in pids:
         pid = pids[segment]
         p = psutil.Process(pid)
-        for f in p.get_connections(kind="unix"):
+        try:
+            connections = p.get_connections(kind="unix")
+        except:
+            pass
+        try:
+            connections = p.connections(kind="unix")
+        except:
+            pass
+        for f in connections:
             if f.laddr.startswith("/var/run"):
                 sockets[segment] = f.laddr
     return sockets
