@@ -53,7 +53,7 @@ for s in seg.keys():
                     try:
                         peers[s].append(reverseLookup(ip.to_text()))
                     except:
-                        print "No reverseloopup for %s"%(ip)
+                        print("No reverseloopup for %s"%(ip))
             except:
                 pass
 
@@ -64,14 +64,14 @@ for s in seg:
     if count <1:
         orphanedSegments.append(s)
     if args.dump:
-        print "Segment %02d has %i peers"%(s,count)
+        print("Segment %02d has %i peers"%(s,count))
         for p in peers[s]:
-            print "\t%s"%(p)
+            print("\t%s"%(p))
 
 if len(orphanedSegments) >0:
-    print "Not all Segments are currently connectable:"
+    print("Not all Segments are currently connectable:")
     for s in orphanedSegments:
-        print "\tSegment %02i "%(s),
-    print ""
+        print("\tSegment %02i "%(s),)
+    print("")
     sys.exit(1)
     
