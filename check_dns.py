@@ -42,19 +42,27 @@ resolver = dns.resolver.Resolver()
 server_ip = resolver.query("%s."%(server),"a")[0].to_text()
 resolver.nameservers = [server_ip]
 
-for s in seg.keys():
+#for s in seg.keys():
+for s in [01]:
     peers[s] = []
-    for gw in range(1,11):
+    #for gw in range(1,11):
+    for gw in [8,]:
         hostname = "gw%02i%s.freifunk-stuttgart.de."%(gw,seg[s])
-        for t in ["a"]:
+        #for t in ["a","cname"]:
+        for t in ["cname"]:
             try:
-                ips  = resolver.query(hostname,t)
+                if t == "cname":
+                    cnames = resolver.query(hostname,t)[0]
+                    ips  = resolver.query(cnames,"a")
+                else:
+                    ips  = resolver.query(hostname,t)
                 for ip in ips:
                     try:
-                        peers[s].append(reverseLookup(ip.to_text()))
+                        peers[s].append((hostname.split(".")[0],reverseLookup(ip.to_text())))
                     except:
                         print("No reverseloopup for %s"%(ip))
             except:
+                raise
                 pass
 
 orphanedSegments = []
@@ -66,7 +74,7 @@ for s in seg:
     if args.dump:
         print("Segment %02d has %i peers"%(s,count))
         for p in peers[s]:
-            print("\t%s"%(p))
+            print("\t%s : %s"%(p[0],p[1]))
 
 if len(orphanedSegments) >0:
     print("Not all Segments are currently connectable:")
