@@ -42,27 +42,20 @@ resolver = dns.resolver.Resolver()
 server_ip = resolver.query("%s."%(server),"a")[0].to_text()
 resolver.nameservers = [server_ip]
 
-#for s in seg.keys():
-for s in [01]:
+for s in seg.keys():
     peers[s] = []
-    #for gw in range(1,11):
-    for gw in [8,]:
+    for gw in range(1,11):
         hostname = "gw%02i%s.freifunk-stuttgart.de."%(gw,seg[s])
-        #for t in ["a","cname"]:
-        for t in ["cname"]:
+        for t in ["a"]:
             try:
-                if t == "cname":
-                    cnames = resolver.query(hostname,t)[0]
-                    ips  = resolver.query(cnames,"a")
-                else:
-                    ips  = resolver.query(hostname,t)
+                ips  = resolver.query(hostname,t)
                 for ip in ips:
                     try:
                         peers[s].append((hostname.split(".")[0],reverseLookup(ip.to_text())))
                     except:
                         print("No reverseloopup for %s"%(ip))
             except:
-                raise
+                #raise
                 pass
 
 orphanedSegments = []
