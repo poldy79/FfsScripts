@@ -42,7 +42,10 @@ if args.remove:
     if args.verbose:
         print("Will remove gw %i from semgent %i"%(args.gw,args.segment))
     for t in ["a","aaaa"]:
-        cmd.append("update delete gw%02is%02i.freifunk-stuttgart.de %s"%(args.gw,args.segment,t))
+        if args.segment == 0:
+            cmd.append("update delete gw%02i.freifunk-stuttgart.de %s"%(args.gw,t))
+        else:
+            cmd.append("update delete gw%02is%02i.freifunk-stuttgart.de %s"%(args.gw,args.segment,t))
 else:
     resolver = dns.resolver.Resolver()
     server_ip = resolver.query("%s."%(server),"a")[0].to_text()
@@ -61,7 +64,10 @@ else:
     if args.verbose:
         print("Will enable gw %i instance %i in segment %i"%(args.gw,args.instance,args.segment))
     for t in ip.keys():
-        cmd.append("update add gw%02is%02i.freifunk-stuttgart.de 300 %s %s"%(args.gw,args.segment,t,ip[t]))
+        if args.segment == 0:
+            cmd.append("update add gw%02i.freifunk-stuttgart.de 300 %s %s"%(args.gw,t,ip[t]))
+        else:
+            cmd.append("update add gw%02is%02i.freifunk-stuttgart.de 300 %s %s"%(args.gw,args.segment,t,ip[t]))
 
 cmd.append("send")
 
