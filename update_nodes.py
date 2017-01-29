@@ -100,14 +100,12 @@ def getNodeConnections():
         if "batadv" in nodes_mesh[n]:
             for iface in nodes_mesh[n]["batadv"]:
                 neighbours+= nodes_mesh[n]["batadv"][iface]["neighbours"].keys()
-        #print  nm[n]["batadv"]
         gws = []
         for g in neighbours:
             if g.startswith("02:00:3") or g.startswith("02:00:0a:3"):
                 gws.append(g)
 
         nodes = [x for x in neighbours if x not in gws]
-        #gws = [x for x in neighbours if x in gk]
         node_connections[n] ={"nodes": nodes, "gws":gws}
     return node_connections
 
@@ -142,6 +140,7 @@ for mac in nodes_info:
                 name = nodes_info[mac]["hostname"]
             no = nodes_info[mac]
             region = "Unknown"
+            desiredSegment = "Unknown"
             if no.has_key("location"):
                 if "longitude" in no["location"] and "latitude" in no["location"]:
                     (region,desiredSegment) = getRegion(no["location"]["latitude"],no["location"]["longitude"])
@@ -195,22 +194,24 @@ for mac in nodes_all:
         print "target: %s"%(mac)
         n["last_online"] = int(time.time())
         n["status"] = "online"
-    #elif n["last_online"] > int(time.time())-60*15:
-    #    #has been seen 15minutes ago
-    #    print "node has been online last 15 min: %s"%(mac)
     else:
-        n["status"] = "offline"
-        n["clients"]["total"] = 0
-        n["clients"]["wifi"] = 0
-        n["gateway"] = ""
-        n["fastd"] = []
-        n["neighbours"] = []
-        deltaWeek = 7*24*60*60
-        if n["last_online"] < int(time.time())-deltaWeek:
-            hiddenNodes.append(mac)
-
+        try:
+            n["status"] = "offline"
+            if not "clients" in n:
+                n["clients"] = {}
+            n["clients"]["total"] = 0
+            n["clients"]["wifi"] = 0
+            n["gateway"] = ""
+            n["fastd"] = []
+            n["neighbours"] = []
+            deltaWeek = 7*24*60*60
+            if n["last_online"] < int(time.time())-deltaWeek:
+                hiddenNodes.append(mac)
+        except:
+            print mac
+            print n
+            raise
 fp_nodes_all = open(args.nodes,"wb")
-#fp_nodes_all.write( json.dumps(nodes_all,sort_keys=True, indent=4, separators=(',', ': ')))
 fp_nodes_all.write( json.dumps(nodes_all,sort_keys=True))
 fp_nodes_all.close()
 
@@ -218,7 +219,6 @@ for hidden in hiddenNodes:
     del nodes_all[hidden]
 
 fp_nodes_all = open(args.nodes_map,"wb")
-#fp_nodes_all.write( json.dumps(nodes_all,sort_keys=True, indent=4, separators=(',', ': ')))
 fp_nodes_all.write( json.dumps(nodes_all,sort_keys=True))
 fp_nodes_all.close()
 
