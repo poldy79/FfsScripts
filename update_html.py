@@ -188,7 +188,7 @@ for node in nodes_info:
             clientsPerGw[getGwInstance(gateway)] += totalclients
 	ip = ""
 	status = "unknown"
-	if n.has_key("network"):
+	if n.has_key("network") and "addresses" in n["network"]:
 		for ip in n['network']['addresses']:
                     if ip.startswith("fd21:b4dc"):
 			break

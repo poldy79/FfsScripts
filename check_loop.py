@@ -17,18 +17,18 @@ def getLoopCount():
         if not ls[6].startswith("br"):
             continue
         interface  = ls[10]
-        if interface not in result:
-            result[interface] = 0
 
         if not " ".join(ls[11:]) == "with own address as source address":
             continue
         d = datetime.datetime.strptime(str(datetime.datetime.now().year)+" "+" ".join(ls[0:3]), "%Y %b %d %H:%M:%S")
         delta = datetime.datetime.now() - d
-        if delta.seconds > 60*5: #last hour - or 5 min
+        if delta.seconds > 60: #1 min
             continue
         if first == None:
             first = l
         #print "%i: %s"%(delta.seconds,interface)
+        if interface not in result:
+            result[interface] = 0
         result[interface]+=1
         #print l
 
