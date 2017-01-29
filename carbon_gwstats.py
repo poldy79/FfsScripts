@@ -6,7 +6,7 @@ import pickle
 import struct
 import random
 import json
-CARBON_SERVER = '10.191.255.12'
+CARBON_SERVER = '10.191.255.243'
 CARBON_PICKLE_PORT = 2004
 
 def mac2met(mac):
