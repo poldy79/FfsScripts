@@ -39,7 +39,13 @@ def getProcesses():
         else:
             if pinfo["name"] == "fastd":
                 socket = ""
-                config = pinfo["cmdline"][pinfo["cmdline"].index("--config")+1]
+                if "--config" in pinfo["cmdline"]:
+                    config = pinfo["cmdline"][pinfo["cmdline"].index("--config")+1]
+                elif "-c" in pinfo["cmdline"]:
+                    config = pinfo["cmdline"][pinfo["cmdline"].index("-c")+1]
+                else:
+                    print pinfo["cmdline"]
+                    print "Configuration for fastd not identified"
                 segment = os.path.dirname(config).rsplit("/",1)[1]
                 pids[segment] = pinfo["pid"]
                 p = psutil.Process(pinfo["pid"])
