@@ -195,16 +195,22 @@ for mac in nodes_all:
         n["last_online"] = int(time.time())
         n["status"] = "online"
     else:
-        n["status"] = "offline"
-        n["clients"]["total"] = 0
-        n["clients"]["wifi"] = 0
-        n["gateway"] = ""
-        n["fastd"] = []
-        n["neighbours"] = []
-        deltaWeek = 7*24*60*60
-        if n["last_online"] < int(time.time())-deltaWeek:
-            hiddenNodes.append(mac)
-
+        try:
+            n["status"] = "offline"
+            if not "clients" in n:
+                n["clients"] = {}
+            n["clients"]["total"] = 0
+            n["clients"]["wifi"] = 0
+            n["gateway"] = ""
+            n["fastd"] = []
+            n["neighbours"] = []
+            deltaWeek = 7*24*60*60
+            if n["last_online"] < int(time.time())-deltaWeek:
+                hiddenNodes.append(mac)
+        except:
+            print mac
+            print n
+            raise
 fp_nodes_all = open(args.nodes,"wb")
 fp_nodes_all.write( json.dumps(nodes_all,sort_keys=True))
 fp_nodes_all.close()
