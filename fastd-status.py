@@ -7,11 +7,12 @@ import sys
 parser = argparse.ArgumentParser(description='Clean fastd output - remove public IP addresses')
 parser.add_argument('-o', dest='output', action='store', required=True, help='Output file')
 parser.add_argument('-i', dest='input', action='store', required=True, help='Input file')
-
+parser.add_argument('-q',dest='quiet', action='store_true', required=False, help='Do not warn if input file does not exist')
 args = parser.parse_args()
 
 if not os.path.exists(args.input):
-    print ("Input file does not exist")
+    if not args.quiet: 
+        print ("Input file does not exist")
     sys.exit(-1)
 
 
