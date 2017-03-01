@@ -68,9 +68,8 @@ files = glob(os.path.dirname(os.path.realpath(__file__))+"/segments/*/*.json")
 for filename in files:
     region = os.path.basename(filename.split(".")[0])
     segment = os.path.dirname(filename).split("/")[-1]
-    fp = open(filename,"rb")
-    geojson = json.load(fp)
-    fp.close()
+    with open(filename,"rb") as fp:
+        geojson = json.load(fp)
     if "geometries" in geojson:
         trk = geojson["geometries"][0]["coordinates"][0][0]
     elif "coordinates" in geojson:
@@ -92,7 +91,9 @@ def getRegion(lat,lon):
         point= Point(lat,lon)
         result = "Outside"
         segment = "undefined"
-        for polygon in polygons:
+        polygons_sorted = polygons.keys()
+        polygons_sorted.sort()
+        for polygon in polygons_sorted:
                 if polygons[polygon].contains(point):
                     result =  polygon
                     break
