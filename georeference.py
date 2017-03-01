@@ -7,6 +7,7 @@ import math
 import matplotlib.patches as patches
 import pylab
 import os
+import sys
 
 #http://ra.osmsurround.org/searchRelation?name=Nordrhein-Westfalen&relationType=&route=&ref=&network=&operator=
 #http://polygons.openstreetmap.fr/index.py
@@ -44,9 +45,9 @@ relations["Stuttgart-Zuffenhausen"] = 1107897
 
 for r in relations:
     if False:
-        print "curl \"http://polygons.openstreetmap.fr/index.py?id=%i\" > /dev/null"%(relations[r])
-	print "curl \"http://polygons.openstreetmap.fr/get_geojson.py?id=%i&params=0\" > %s.json"%(relations[r],r)
-	
+        print("curl \"http://polygons.openstreetmap.fr/index.py?id=%i\" > /dev/null"%(relations[r]))
+        print("curl \"http://polygons.openstreetmap.fr/get_geojson.py?id=%i&params=0\" > %s.json"%(relations[r],r))
+    
 def displayPoly(pp):
     cent=(sum([p[0] for p in pp])/len(pp),sum([p[1] for p in pp])/len(pp))
     # sort by polar angle
@@ -75,7 +76,7 @@ for filename in files:
     elif "coordinates" in geojson:
         trk = geojson["coordinates"][0][0]
     else:
-        print "Problem parsing %s"%filename
+        print("Problem parsing %s"%filename)
         continue
     array = []
     for t in trk:
@@ -85,20 +86,23 @@ for filename in files:
     regions[region] = segment
 
 def getRegions():
-	return polygons.keys()
-	
+    return polygons.keys()
+    
 def getRegion(lat,lon):
         point= Point(lat,lon)
         result = "Outside"
         segment = "undefined"
+        #the followring line does not work on python3
         polygons_sorted = polygons.keys()
-        polygons_sorted.sort()
+        if sys.version_info.major == 2:
+            polygons_sorted.sort()
         for polygon in polygons_sorted:
-                if polygons[polygon].contains(point):
-                    result =  polygon
-                    break
+            if polygons[polygon].contains(point):
+                result =  polygon
+                break
         if result in regions:
             segment = regions[result]
         return (result,segment)
 
-#print getRegion(48.78679199385324,9.189022779464722)
+
+#print(getRegion(48.78679199385324,9.189022779464722))
