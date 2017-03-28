@@ -15,7 +15,7 @@ def getSubnetFromRange(ipRangeStr):
         segment+=1
         if r in subnet:
             return (subnet,segment)
-
+    return (None,None)
 def putval(cmd,hostname):
     params = ("defined","used","free","touched")
 
@@ -29,6 +29,8 @@ def putval(cmd,hostname):
     for dhcpSubnet in dhcpSubnets:
         dhcpRange = dhcpSubnet["range"]
         (subnet,segment) =  getSubnetFromRange(dhcpRange)
+        if segment == None:
+            continue
         for param in params:
             print('PUTVAL "%s/dhcp-%i/gauge-dhcp_%s" N:%i'%(hostname,segment,param,dhcpSubnet[param]))
     sys.stdout.flush()
