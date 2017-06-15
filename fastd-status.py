@@ -5,10 +5,11 @@ import json
 import os
 import sys
 parser = argparse.ArgumentParser(description='Clean fastd output - remove public IP addresses')
-parser.add_argument('-o', dest='output', action='store', required=True, help='Output file')
+parser.add_argument('-o', dest='output', action='store', required=False, help='Output file')
 parser.add_argument('-i', dest='input', action='store', required=True, help='Input file')
 parser.add_argument('-q',dest='quiet', action='store_true', required=False, help='Do not warn if input file does not exist')
-parser.add_argument('--show',dest='show', action='store_true', required=False, help='show ip adresses in output')
+parser.add_argument('--show-address',dest='showAddress', action='store_true', required=False, help='show ip adresses in output')
+parser.add_argument('--show-unconnected',dest='showUnconnected', action='store_true', required=False, help='show also unconnected')
 args = parser.parse_args()
 
 dslite = ["46.5.254.26",]
@@ -29,25 +30,39 @@ while(True):
     result += tmp
 s.close()
 status = json.loads(result)
+unconnected = []
 
 for p in  status["peers"]:
-        if status["peers"][p]["address"] != "any" and not args.show:
-            if status["peers"][p]["address"].split(":")[0] in dslite:
-                status["peers"][p]["address"] = "ds-lite"
-            elif "." in status["peers"][p]["address"]:
-                status["peers"][p]["address"] = "IPv4"
-            elif ":" in status["peers"][p]["address"]:
-                status["peers"][p]["address"] = "IPv6"
-            else:
-                status["peers"][p]["address"] = "available"
+    if status["peers"][p]["address"] != "any":
+        if status["peers"][p]["address"].split(":")[0] in dslite:
+            status["peers"][p]["protocol"] = "IPv4 ds-lite"
+        elif "." in status["peers"][p]["address"]:
+            status["peers"][p]["protocol"] = "IPv4"
+        elif ":" in status["peers"][p]["address"]:
+            status["peers"][p]["protocol"] = "IPv6"
+        if not args.showAddress:
+            status["peers"][p]["address"] = "available"
+    else:
+        unconnected.append(p)
 
-try:
-    fp = open(args.output,"wb")
-except:
-    print "Output file could not be created"
-    sys.exit(-1)
+if not args.showUnconnected:
+    for u in unconnected:
+        del status["peers"][u]
+
+jsons = json.dumps(status,sort_keys=True, indent=4, separators=(',', ': '))
+
+if args.output == None:
+    print(jsons)
+else:
+    if args.showAddress and args.output != None:
+        print("Output to file not allowed if addresses are shown!")
+        sys.exit(-1)
+    try:
+        with open(args.output,"w") as fp:
+            fp.write(jsons)
+    except:
+        print("Output file could not be created")
+        sys.exit(-1)
 
 
-fp.write( json.dumps(status,sort_keys=True, indent=4, separators=(',', ': ')))          
-fp.close()
 
