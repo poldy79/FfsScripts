@@ -43,9 +43,9 @@ if args.remove:
         print("Will remove gw %i from semgent %i"%(args.gw,args.segment))
     for t in ["a","aaaa"]:
         if args.segment == 0:
-            cmd.append("update delete gw%02i.freifunk-stuttgart.de %s"%(args.gw,t))
+            cmd.append("update delete gw%02i.gw.freifunk-stuttgart.de %s"%(args.gw,t))
         else:
-            cmd.append("update delete gw%02is%02i.freifunk-stuttgart.de %s"%(args.gw,args.segment,t))
+            cmd.append("update delete gw%02is%02i.gw.freifunk-stuttgart.de %s"%(args.gw,args.segment,t))
 else:
     resolver = dns.resolver.Resolver()
     server_ip = resolver.query("%s."%(server),"a")[0].to_text()
@@ -53,10 +53,10 @@ else:
     ip = {}
     for t in ["a","aaaa"]:
         try:
-            ip[t] = resolver.query("gw%02in%02i.freifunk-stuttgart.de."%(args.gw,args.instance),t)[0]
+            ip[t] = resolver.query("gw%02in%02i.gw.freifunk-stuttgart.de."%(args.gw,args.instance),t)[0]
         except:
             if args.verbose:
-                print("No %s record found for gw%02in%02i.freifunk-stuttgart.de"%(t,args.gw,args.instance))
+                print("No %s record found for gw%02in%02i.gw.freifunk-stuttgart.de"%(t,args.gw,args.instance))
     
     if len(ip.keys()) == 0:
         print "ERROR: No IPs given for this instance"
@@ -65,9 +65,9 @@ else:
         print("Will enable gw %i instance %i in segment %i"%(args.gw,args.instance,args.segment))
     for t in ip.keys():
         if args.segment == 0:
-            cmd.append("update add gw%02i.freifunk-stuttgart.de 300 %s %s"%(args.gw,t,ip[t]))
+            cmd.append("update add gw%02i.gw.freifunk-stuttgart.de 300 %s %s"%(args.gw,t,ip[t]))
         else:
-            cmd.append("update add gw%02is%02i.freifunk-stuttgart.de 300 %s %s"%(args.gw,args.segment,t,ip[t]))
+            cmd.append("update add gw%02is%02i.gw.freifunk-stuttgart.de 300 %s %s"%(args.gw,args.segment,t,ip[t]))
 
 cmd.append("send")
 

@@ -25,13 +25,15 @@ def walk(input, prefix = None):
         elif type(d) is types.DictType:
             output += walk(d,prefix+"."+item)
         elif type(d) is types.UnicodeType:
-            output.append((prefix+"."+item,d))
+            pass
+            #output.append((prefix+"."+item,d))
         elif type(d) is types.ListType:
-            if len(d) >0:
-                output.append(((prefix+"."+item,d[0])))
-            #print "list: %s %s"%(item,d)
+            pass
+            #if len(d) >0:
+            #    output.append(((prefix+"."+item,d[0])))
         elif type(d) is  types.NoneType:
-            output.append((prefix+"."+item,"None"))
+            pass
+            #output.append((prefix+"."+item,"None"))
         else:
             print "Unknown Type"
             print type(d)            
@@ -43,4 +45,6 @@ if __name__ == '__main__':
     data = importJson()
     result = walk(data,"fastd")
     for i in result:
-        print i
+        print i[0], 
+        print " ",
+        print i[1]
