@@ -144,7 +144,7 @@ for mac in nodes_info:
             if no.has_key("location"):
                 if "longitude" in no["location"] and "latitude" in no["location"]:
                     (region,desiredSegment) = getRegion(no["location"]["latitude"],no["location"]["longitude"])
-            send(args.mailfrom,args.mailto,"New Node anounced","MAC: %s\nName: %s\nregion %s\nSegment: %s"%(mac,name,region,desiredSegment))
+            #send(args.mailfrom,args.mailto,"New Node anounced","MAC: %s\nName: %s\nregion %s\nSegment: %s"%(mac,name,region,desiredSegment))
         except:
             print "Error sending mail for mac %s"%(mac)
             print name
