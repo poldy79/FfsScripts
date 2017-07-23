@@ -67,10 +67,12 @@ regions = {}
 
 
 
-files = glob(os.path.dirname(os.path.realpath(__file__))+"/segments/*/*.json")
+files = glob("/etc/fastd/peers-ffs/*/regions/*.json")
 for filename in files:
+    if os.path.basename(filename).startswith("_"):
+        continue
     region = os.path.basename(filename.split(".")[0])
-    segment = os.path.dirname(filename).split("/")[-1]
+    segment = os.path.dirname(filename).split("/")[-2][3:]
     with open(filename,"rb") as fp:
         geojson = json.load(fp)
     if "geometries" in geojson:
