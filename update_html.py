@@ -116,7 +116,7 @@ for node in nodes_info:
         if node in nodes_online_status:
             nos = nodes_online_status[node]
 
-        if n.has_key('location') and n["location"].has_key("latitude") and n["location"].has_key("longitude"):
+        if "region" in n:
 		location='yes'
 		locationcount+=1
                 if "region" in n:
@@ -124,10 +124,11 @@ for node in nodes_info:
                 else:
                     location = "Outside"
 		if location == "Outside":
-			location = "Raw: %f,%f"%(n["location"]["latitude"],n["location"]["longitude"])
-			if n["status"] == "online":
-				regions["Unknown Region"]["nodes"] +=1 
-				regions["Unknown Region"]["clients"] += int(n['clients']['total'])
+                    if n.has_key('location') and n["location"].has_key("latitude") and n["location"].has_key("longitude"):
+                        location = "Raw: %f,%f"%(n["location"]["latitude"],n["location"]["longitude"])
+                        if n["status"] == "online":
+                            regions["Unknown Region"]["nodes"] +=1 
+                            regions["Unknown Region"]["clients"] += int(n['clients']['total'])
 		else:
 			if n["status"] == "online":
                                 if not location in regions:
@@ -136,7 +137,12 @@ for node in nodes_info:
 				regions[location]["clients"] += int(n['clients']['total'])
 	else:
                 if "location" in n:
-                    location='<font color="#FF0000">incomplete</font>'	
+                    if "zip" in n["location"]:
+                        location='PLZ: %s'%(n["location"]["zip"])
+                    elif len(n["location"])==0:
+                        location='<font color="#FF0000">no location</font>'
+                    else:
+                        location='<font color="#FF0000">incomplete</font>'	
                 else:
                     location='<font color="#FF0000">no location</font>'	
 		if n["status"] == "online":
