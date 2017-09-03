@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import json
 import argparse
+import datetime
 
 parser = argparse.ArgumentParser(description='Generate JSON for Freifunk App')
 
@@ -29,12 +30,15 @@ for node in nodes:
 	if n["status"] == "online":
 		nodecount+=1
 
-fd = open(args.input,"rb")
-map = json.load(fd)
-fd.close()
+with open(args.input,"rb") as fd:
+    map = json.load(fd)
+
+timestamp = "%sZ"%(datetime.datetime.utcnow().isoformat())
 
 map["state"]["nodes"] = nodecount 
+map["state"]["lastchange"] = timestamp
 
-fd = open(args.output,"wb")
-fd.write( json.dumps(map,sort_keys=True, indent=4, separators=(',', ': ')))
-fd.close()
+
+
+with  open(args.output,"wb") as fd:
+    fd.write( json.dumps(map,sort_keys=True, indent=4, separators=(',', ': ')))
