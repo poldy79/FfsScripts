@@ -42,22 +42,29 @@ def getPeak24h():
         if h["tx"] > peak:
             peak = h["tx"]
     return peak/1024/3600*8
+
+def getDnsStatus(segment):
+    hostname = "gw01s%02i.gw.freifunk-stuttgart.de"%(segment)
+    try:
+        subprocess.check_output(["/usr/bin/host",hostname,"dns1.lihas.de"])
+        return 1
+    except:
+        return 0
     
 def getPreference():
     preference = int((300-getPeak24h()) / 3) # max 300mbit
     return preference
     
-def genData(preference = 80, active = 1):
+def genData(preference=0):
     data = {}
     data["version"] = "1"
     data["timestamp"] = int(time.time())
-    segment = {}
-    segment["preference"] = preference
-    segment["dnsactive"] = active
-    
+   
     segments = {}
     for s in range(1,18):
-        segments[s] = segment
+        segments[s] = {}
+        segments[s]["preference"] = preference
+        segments[s]["dnsactive"] = getDnsStatus(s)
     
     data["segments"] = segments 
     return data
