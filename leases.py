@@ -32,7 +32,7 @@ def putval(cmd,hostname):
         if segment == None:
             continue
         for param in params:
-            print('PUTVAL "%s/dhcp-%i/gauge-dhcp_%s" N:%i'%(hostname,segment,param,dhcpSubnet[param]))
+            print('PUTVAL "%s/dhcp-%.2i/gauge-dhcp_%s" N:%i'%(hostname,segment,param,dhcpSubnet[param]))
     sys.stdout.flush()
 
 def loop():

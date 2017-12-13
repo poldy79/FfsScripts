@@ -31,6 +31,7 @@ class CLIError(Exception):
         return self.msg
     def __unicode__(self):
         return self.msg
+    
 
 def getPeak24h():
     vnstat = json.loads(subprocess.check_output(["/usr/bin/vnstat", "-h", "--json"]).decode('utf-8'))
@@ -61,7 +62,7 @@ def genData(preference=0):
     data["timestamp"] = int(time.time())
    
     segments = {}
-    for s in range(1,18):
+    for s in range(1,25):
         segments[s] = {}
         segments[s]["preference"] = preference
         segments[s]["dnsactive"] = getDnsStatus(s)
