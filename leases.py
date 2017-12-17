@@ -19,7 +19,7 @@ def getSubnetFromRange(ipRangeStr):
 def putval(cmd,hostname):
     params = ("defined","used","free","touched")
 
-    output = subprocess.check_output(cmd,shell=True)
+    output = subprocess.check_output(cmd,shell=True).decode('utf-8')
     data = json.loads(output)
     dhcpSubnets = data["subnets"]
 
@@ -32,7 +32,7 @@ def putval(cmd,hostname):
         if segment == None:
             continue
         for param in params:
-            print('PUTVAL "%s/dhcp-%i/gauge-dhcp_%s" N:%i'%(hostname,segment,param,dhcpSubnet[param]))
+            print('PUTVAL "%s/dhcp-%.2i/gauge-dhcp_%s" N:%i'%(hostname,segment,param,dhcpSubnet[param]))
     sys.stdout.flush()
 
 def loop():
