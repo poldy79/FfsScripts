@@ -19,7 +19,7 @@ def getSubnetFromRange(ipRangeStr):
 def putval(cmd,hostname):
     params = ("defined","used","free","touched")
 
-    output = subprocess.check_output(cmd,shell=True).decode('utf-8')
+    output = subprocess.check_output(cmd.split(" "),shell=False).decode('utf-8')
     data = json.loads(output)
     dhcpSubnets = data["subnets"]
 
