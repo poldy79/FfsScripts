@@ -33,19 +33,17 @@ def submit(data,timestamp):
 
 def commitData(timestamp):
     errors = []
-    fp_159 = open("/root/freifunk/data/alfred-json-159-merged.json","rb")
-    nodes = json.load(fp_159)
+    raw = json.load(open("/root/freifunk/data/raw.json","r"))
     gw = {}
-
-    for node in nodes:
+    nodes = raw["nodes"]
+    for n in nodes:
+        node =  n["nodeinfo"]["network"]["mac"]
         try:
-            n = nodes[node]
-
-            clients = n["clients"]["total"]
-            gateway = n["gateway"]
+            clients = n["statistics"]["clients"]["total"]
+            gateway = n["statistics"]["gateway"]
             has_uplink = False
-            if "mesh_vpn" in n:
-                peers = n["mesh_vpn"]["groups"]["backbone"]["peers"]
+            if "mesh_vpn" in n["statistics"]:
+                peers = n["statistics"]["mesh_vpn"]["groups"]["backbone"]["peers"]
                 for p in peers:
                     if peers[p] != None:
                         has_uplink = True
@@ -63,7 +61,7 @@ def commitData(timestamp):
             gw[gateway]["nodes"] += 1
             gw[gateway]["clients"] += clients
         except:
-            print "Error with node %s"%(node)
+            print "Error with node %s"%(n)
             print nodes[node]
             errors.append(node)
             pass
@@ -75,7 +73,7 @@ def commitData(timestamp):
         data.append((prefix+"clients",g["clients"]))
         data.append((prefix+"nodes",g["nodes"]))
         data.append((prefix+"fastd",g["fastd"]))
-        #print data
+        #print(data)
         submit(data,timestamp)
     if len(errors)>0:
         print "Eroors with nodes: %s"%(" ".join(errors))
