@@ -23,20 +23,18 @@ def submit(data,timestamp):
     sock.sendall(package)
 
 def commitData(timestamp):
-    fp_158 = open("/root/freifunk/data/alfred-json-158-merged.json","rb")
-    nodes_158 = json.load(fp_158)
-    fp_159 = open("/root/freifunk/data/alfred-json-159-merged.json","rb")
-    nodes = json.load(fp_159)
+    fn = "/root/freifunk/data/raw.json"
+    raw = json.load(open(fn,"r"))
+    nodes = raw["nodes"]
     for node in nodes:
         data = []
-        if node not in nodes_158:
-            continue
-        hostname = nodes_158[node]["hostname"]
+        hostname = node["nodeinfo"]["hostname"]
         if hostname.startswith("ffs-nbhfstr163") or hostname.startswith("ffs-es-altstadt") or hostname.startswith("71522-") or hostname.startswith("71546-"):
-            n = nodes[node]
+            n = node["statistics"]
             host =  "alfred."+hostname+"."
             data.append((host+"clients",n["clients"]["total"]))
-            data.append((host+"loadavg",n["loadavg"]))
+            if "loadavg" in n:
+                data.append((host+"loadavg",n["loadavg"]))
             data.append((host+"memory.buffers",n["memory"]["buffers"]))
             data.append((host+"memory.cached",n["memory"]["cached"]))
             data.append((host+"memory.free",n["memory"]["free"]))
