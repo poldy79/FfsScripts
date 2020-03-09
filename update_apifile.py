@@ -13,21 +13,20 @@ parser.add_argument('--output', dest='output', action='store',
                         required=True,
                    help='Output file')
 
-parser.add_argument('--nodes', dest='nodes', action='store',
+parser.add_argument('--raw', dest='raw', action='store',
                         required=True,
-                   help='nodes file')
+                   help='raw.json file')
 
 args = parser.parse_args()
 
 
-fp = open(args.nodes,"rb")
-nodes = json.load(fp)
+fp = open(args.raw,"rb")
+raw = json.load(fp)
 fp.close()
-
+nodes = raw["nodes"]
 nodecount = 0
 for node in nodes:
-	n = nodes[node]
-	if n["status"] == "online":
+    if node["online"] == True:
 		nodecount+=1
 
 with open(args.input,"rb") as fd:
