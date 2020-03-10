@@ -30,7 +30,7 @@ m = {}
 
 m["version"] = "1.0"
 m["updated_at"] = st
-m["comunity"] ={ "href":"http://gw01.freifunk-stuttgart.de/FreifunkStuttgart-api.json","name":"Freifunk Stuttgart"}
+m["comunity"] ={ "href":"http://netinfo.freifunk-stuttgart.de/FreifunkStuttgart-api.json","name":"Freifunk Stuttgart"}
 
 m["nodes"] = []
 
