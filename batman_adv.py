@@ -47,8 +47,10 @@ def getTranstableGlobal():
     t = {}
     files = glob.glob("/sys/kernel/debug/batman_adv/bat*/transtable_global")
     for f in files:
-        fp = open(f,"rb")
-        data = fp.read().strip().split("\n")
+        with open(f,"r") as fp:
+            data = fp.read().strip().split("\n")
+        if len(data) < 2:
+            print("File %s has lengt <2 with content %s"%(f,data))
         status = data[0]
         header = data[1]
         for line in data[2:]:
