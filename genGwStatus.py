@@ -62,7 +62,7 @@ def genData(preference=0):
     data["timestamp"] = int(time.time())
    
     segments = {}
-    for s in range(1,25):
+    for s in range(1,32+1):
         segments[s] = {}
         segments[s]["preference"] = preference
         segments[s]["dnsactive"] = getDnsStatus(s)
