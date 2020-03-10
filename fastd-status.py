@@ -21,17 +21,20 @@ if not os.path.exists(args.input):
 
 
 s = socket.socket(socket.AF_UNIX,socket.SOCK_STREAM)
-s.connect(args.input)
-result = ""
-while(True):
-    tmp = s.recv(1024*1024) 
-    if tmp == "":
-        break
-    result += tmp
-s.close()
-status = json.loads(result)
-unconnected = []
-
+try:
+    s.connect(args.input)
+    result = ""
+    while(True):
+        tmp = s.recv(1024*1024) 
+        if tmp == "":
+            break
+        result += tmp
+    s.close()
+    status = json.loads(result)
+    unconnected = []
+except:
+    print("Error while opeining %s"%(args.input))
+    raise
 for p in  status["peers"]:
     if status["peers"][p]["address"] != "any":
         if status["peers"][p]["address"].split(":")[0] in dslite:
