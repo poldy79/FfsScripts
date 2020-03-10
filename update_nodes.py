@@ -54,7 +54,7 @@ parser.add_argument('--nodes', dest='nodes', action='store',
            help='nodes file')
 
 parser.add_argument('--nodes_map', dest='nodes_map', action='store',
-            required=True,
+            required=False,
            help='nodes_map file')
 
 parser.add_argument('--mailto', dest='mailto', action='store',
@@ -218,9 +218,9 @@ fp_nodes_all.close()
 for hidden in hiddenNodes:
     del nodes_all[hidden]
 
-fp_nodes_all = open(args.nodes_map,"wb")
-fp_nodes_all.write( json.dumps(nodes_all,sort_keys=True))
-fp_nodes_all.close()
+#fp_nodes_all = open(args.nodes_map,"wb")
+#fp_nodes_all.write( json.dumps(nodes_all,sort_keys=True))
+#fp_nodes_all.close()
 
 
 
