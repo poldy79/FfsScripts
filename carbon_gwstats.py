@@ -61,8 +61,7 @@ def commitData(timestamp):
             gw[gateway]["nodes"] += 1
             gw[gateway]["clients"] += clients
         except:
-            print "Error with node %s"%(n)
-            print nodes[node]
+            print "Error with node %s"%(node)
             errors.append(node)
             pass
     for mac in gw:
