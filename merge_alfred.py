@@ -18,10 +18,13 @@ args = parser.parse_args()
 inputFiles = glob.glob(args.input)
 data = {}
 for i in inputFiles:
-    fp = open(i,"rb")
-    j = json.load(fp)
-    fp.close()
-    data.update(j)
+    try:
+        with open(i,"rb") as fp:
+            j = json.load(fp)
+        data.update(j)
+    except:
+        print("Unable to open %s "%(i))
+        pass
 
 
 des_all = open(args.output,"wb")
