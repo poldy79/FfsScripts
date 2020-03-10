@@ -149,7 +149,7 @@ for node in nodes_info:
 			regions["No Location"]["nodes"] +=1
 			regions["No Location"]["clients"] += int(n['clients']['total'])
 	if n.has_key('hardware'):
-		model = nodes_info[node]['hardware']['model']
+                model = nodes_info[node]['hardware'].get('model',"Unknown")
 	else:
 		model = "Unknown"
 	clients+=int(n['clients']['total'])
