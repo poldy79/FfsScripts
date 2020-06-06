@@ -197,7 +197,7 @@ for mac in nodes_all:
     else:
         try:
             n["status"] = "offline"
-            if not "clients" in n:
+            if not "clients" in n or n["clients"] == None:
                 n["clients"] = {}
             n["clients"]["total"] = 0
             n["clients"]["wifi"] = 0
