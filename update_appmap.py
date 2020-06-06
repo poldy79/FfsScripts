@@ -2,8 +2,6 @@
 import json
 import time
 import datetime
-
-
 import argparse
 
 parser = argparse.ArgumentParser(description='Generate JSON for Freifunk App')
@@ -17,9 +15,6 @@ parser.add_argument('--raw', dest='raw', action='store',
 
 
 args = parser.parse_args()
-
-
-
 ts = time.time()
 st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%dT%H:%M:%S')
 fp = open(args.raw,"rb")
@@ -27,10 +22,7 @@ fp = open(args.raw,"rb")
 raw = json.load(fp)
 fp.close()
 
-
 m = {}
-
-
 m["meta"] = { "timestamp": st }
 m["links"] = []
 m["nodes"] = []
@@ -50,8 +42,6 @@ for node in nodes:
 	m["nodes"].append( current )
 
 map = open(args.output,"wb")
-
 map.write( json.dumps(m,sort_keys=True, indent=4, separators=(',', ': ')))
-
 map.close()
 
