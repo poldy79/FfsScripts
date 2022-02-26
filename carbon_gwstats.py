@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import sys
 import time
 import socket
@@ -33,10 +33,12 @@ def submit(data,timestamp):
 
 def commitData(timestamp):
     errors = []
-    raw = json.load(open("/root/freifunk/data/raw.json","r"))
+    raw = json.load(open("/root/freifunk/data/raw.json","r",encoding='utf-8'))
     gw = {}
     nodes = raw["nodes"]
     for n in nodes:
+        if n["online"] == False:
+            continue
         node =  n["nodeinfo"]["network"]["mac"]
         try:
             clients = n["statistics"]["clients"]["total"]
@@ -61,11 +63,11 @@ def commitData(timestamp):
             gw[gateway]["nodes"] += 1
             gw[gateway]["clients"] += clients
         except:
-            print "Error with node %s"%(node)
+            print("Error with node %s"%(node))
             errors.append(node)
             pass
     for mac in gw:
-        #print mac2met(mac)
+        #print(mac2met(mac))
         g = gw[mac]
         data = []
         prefix =  "alfred_gw.%s."%(mac2met(mac))
@@ -75,7 +77,7 @@ def commitData(timestamp):
         #print(data)
         submit(data,timestamp)
     if len(errors)>0:
-        print "Eroors with nodes: %s"%(" ".join(errors))
+        print("Eroors with nodes: %s"%(" ".join(errors)))
 
 def main():
     timestamp = int(time.time())
