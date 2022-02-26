@@ -25,16 +25,19 @@ class Carbon():
             return "gw%sn%s.s%s" % (s[4], s[5], s[3])
 
     def submit(self, data):
-        sock = socket.socket()
-        sock.connect((CARBON_SERVER, CARBON_PICKLE_PORT))
-        tuples = []
-        for d in data:
-            tuples.append((d[0], (self.timestamp, d[1])))
+        if self.do_submit:
+            sock = socket.socket()
+            sock.connect((CARBON_SERVER, CARBON_PICKLE_PORT))
+            tuples = []
+            for d in data:
+                tuples.append((d[0], (self.timestamp, d[1])))
 
-        package = pickle.dumps(tuples, 1)
-        size = struct.pack('!L', len(package))
-        sock.sendall(size)
-        sock.sendall(package)
+            package = pickle.dumps(tuples, 1)
+            size = struct.pack('!L', len(package))
+            sock.sendall(size)
+            sock.sendall(package)
+        else:
+            print(data)
 
     def commitDataGwStats(self):
         errors = []
@@ -125,13 +128,12 @@ class Carbon():
                     data.append((host + "traffic.tx.bytes", n["traffic"]["tx"]["bytes"]))
                     data.append((host + "traffic.tx.packets", n["traffic"]["tx"]["packets"]))
                     data.append((host + "uptime", n["uptime"]))
-                    if self.do_submit:
-                        self.submit(data, self.timestamp)
-                    else:
-                        print(data)
+                    self.submit(data)
                     # print("wrote data for %s"%(hostname))
-            except Exception as e:
+            except KeyError as e:
                 pass
+            except Exception as e:
+                raise
 
     def run(self):
         self.commitDataNodeStats()
