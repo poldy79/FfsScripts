@@ -83,10 +83,7 @@ class Carbon():
             data.append((prefix + "nodes", g["nodes"]))
             data.append((prefix + "fastd", g["fastd"]))
             # print(data)
-            if self.do_submit:
-                self.submit(data, self.timestamp)
-            else:
-                print(data)
+            self.submit(data)
         if len(errors) > 0:
             print("Eroors with nodes: %s" % (" ".join(errors)))
 
@@ -137,7 +134,7 @@ class Carbon():
 
     def run(self):
         self.commitDataNodeStats()
-        #self.commitDataGwStats()
+        self.commitDataGwStats()
 
 def main():
     parser = argparse.ArgumentParser(description='Process some integers.')
