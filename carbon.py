@@ -12,9 +12,9 @@ CARBON_PICKLE_PORT = 2004
 
 
 class Carbon():
-    def __init__(self, timestamp, input, do_submit):
+    def __init__(self, timestamp, input, carbon):
         self.timestamp = timestamp
-        self.do_submit = do_submit
+        self.carbon = carbon
         self.input = input
 
     def mac2met(self, mac):
@@ -24,20 +24,17 @@ class Carbon():
         else:
             return "gw%sn%s.s%s" % (s[4], s[5], s[3])
 
-    def submit(self, data):
-        if self.do_submit:
-            sock = socket.socket()
-            sock.connect((CARBON_SERVER, CARBON_PICKLE_PORT))
-            tuples = []
-            for d in data:
-                tuples.append((d[0], (self.timestamp, d[1])))
+    def submit_to_carbon(self, data):
+        sock = socket.socket()
+        sock.connect((CARBON_SERVER, CARBON_PICKLE_PORT))
+        tuples = []
+        for d in data:
+            tuples.append((d[0], (self.timestamp, d[1])))
 
-            package = pickle.dumps(tuples, 1)
-            size = struct.pack('!L', len(package))
-            sock.sendall(size)
-            sock.sendall(package)
-        else:
-            print(data)
+        package = pickle.dumps(tuples, 1)
+        size = struct.pack('!L', len(package))
+        sock.sendall(size)
+        sock.sendall(package)
 
     def commitDataGwStats(self):
         errors = []
@@ -83,7 +80,8 @@ class Carbon():
             data.append((prefix + "nodes", g["nodes"]))
             data.append((prefix + "fastd", g["fastd"]))
             # print(data)
-            self.submit(data)
+            if self.carbon:
+                self.submit_to_carbon(data)
         if len(errors) > 0:
             print("Eroors with nodes: %s" % (" ".join(errors)))
 
@@ -119,12 +117,14 @@ class Carbon():
                     data.append((host + "traffic.tx.bytes", n["traffic"]["tx"]["bytes"]))
                     data.append((host + "traffic.tx.packets", n["traffic"]["tx"]["packets"]))
                     data.append((host + "uptime", n["uptime"]))
-                    self.submit(data)
+                    if self.carbon:
+                        self.submit_to_carbon(data)
                     # print("wrote data for %s"%(hostname))
             except KeyError as e:
                 pass
             except Exception as e:
                 raise
+
     def load_json(self):
         fn = self.input
         try:
@@ -139,16 +139,16 @@ class Carbon():
         self.commitDataNodeStats()
         self.commitDataGwStats()
 
+
 def main():
     parser = argparse.ArgumentParser(description='Process some integers.')
-    parser.add_argument('-n', '--dry-run', action='store_true',
-                        help='dry run')
+    parser.add_argument('--carbon', action='store_true',
+                        help='push data to carbon')
     parser.add_argument('-i', '--input', required=True,
                         help='input file raw.json')
     args = parser.parse_args()
     timestamp = int(time.time())
-    do_submit = not args.dry_run
-    carbon = Carbon(timestamp, input=args.input, do_submit=do_submit)
+    carbon = Carbon(timestamp, input=args.input, carbon=args.carbon)
     carbon.run()
 
 
