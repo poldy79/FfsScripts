@@ -41,7 +41,7 @@ class Carbon():
 
     def commitDataGwStats(self):
         errors = []
-        raw = json.load(open(self.input, "r", encoding='utf-8'))
+        raw = self.raw
         gw = {}
         nodes = raw["nodes"]
         for n in nodes:
@@ -88,13 +88,7 @@ class Carbon():
             print("Eroors with nodes: %s" % (" ".join(errors)))
 
     def commitDataNodeStats(self):
-        fn = self.input
-        try:
-            raw = json.load(open(fn, "r", encoding='utf-8'))
-        except Exception as e:
-            size = Path(fn).stat().st_size
-            print(f"Size of {fn} is {size}")
-            raise
+        raw = self.raw
         nodes = raw["nodes"]
         for node in nodes:
             try:
@@ -131,8 +125,17 @@ class Carbon():
                 pass
             except Exception as e:
                 raise
+    def load_json(self):
+        fn = self.input
+        try:
+            self.raw = json.load(open(fn, "r", encoding='utf-8'))
+        except Exception as e:
+            size = Path(fn).stat().st_size
+            print(f"Size of {fn} is {size}")
+            raise
 
     def run(self):
+        self.load_json()
         self.commitDataNodeStats()
         self.commitDataGwStats()
 
