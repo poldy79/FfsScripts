@@ -1,12 +1,11 @@
 #!/usr/bin/python3
-import sys
 import time
 import socket
 import pickle
 import struct
-import random
 import json
 from pathlib import Path
+import argparse
 
 CARBON_SERVER = '10.191.255.243'
 CARBON_PICKLE_PORT = 2004
@@ -36,7 +35,7 @@ class Carbon():
         sock.sendall(size)
         sock.sendall(package)
 
-    def commitData(self):
+    def commitDataNodeStats(self):
         fn = "data/raw.json"
         try:
             raw = json.load(open(fn, "r", encoding='utf-8'))
@@ -74,20 +73,27 @@ class Carbon():
                     data.append((host + "traffic.tx.bytes", n["traffic"]["tx"]["bytes"]))
                     data.append((host + "traffic.tx.packets", n["traffic"]["tx"]["packets"]))
                     data.append((host + "uptime", n["uptime"]))
-                    # print(data)
-                    self.submit(data, self.timestamp)
+                    if self.do_submit:
+                        self.submit(data, self.timestamp)
+                    else:
+                        print(data)
                     # print("wrote data for %s"%(hostname))
             except Exception as e:
                 pass
 
     def run(self):
-        self.commitData()
+        self.commitDataNodeStats()
 
 
 def main():
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('-n', '--dry-run', action='store_true' ,
+                        help='dry run')
+    args = parser.parse_args()
     timestamp = int(time.time())
-    carbon = Carbon(timestamp,do_submit=True)
-    carbon.commitData()
+    do_submit = not args.dry_run
+    carbon = Carbon(timestamp,do_submit=do_submit)
+    carbon.run()
 
 
 if __name__ == "__main__":
