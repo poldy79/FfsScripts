@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import sys
 import time
 import socket
@@ -6,6 +6,7 @@ import pickle
 import struct
 import random
 import json
+from pathlib import Path
 CARBON_SERVER = '10.191.255.243'
 CARBON_PICKLE_PORT = 2004
 
@@ -24,7 +25,12 @@ def submit(data,timestamp):
 
 def commitData(timestamp):
     fn = "/root/freifunk/data/raw.json"
-    raw = json.load(open(fn,"r"))
+    try:
+        raw = json.load(open(fn,"r",encoding='utf-8'))
+    except Exception as e:
+        size = Path(fn).stat().st_size
+        print(f"Size of {fn} is {size}")
+        raise
     nodes = raw["nodes"]
     for node in nodes:
         try:
