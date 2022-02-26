@@ -44,8 +44,8 @@ def getProcesses():
                 elif "-c" in pinfo["cmdline"]:
                     config = pinfo["cmdline"][pinfo["cmdline"].index("-c")+1]
                 else:
-                    print pinfo["cmdline"]
-                    print "Configuration for fastd not identified"
+                    print(pinfo["cmdline"])
+                    print("Configuration for fastd not identified")
                 segment = os.path.dirname(config).rsplit("/",1)[1]
                 pids[segment] = pinfo["pid"]
                 p = psutil.Process(pinfo["pid"])
@@ -94,15 +94,15 @@ def getKeys(peers):
                     key = line.split(" ")[1][1:-2]
                     keys.append(key)
                 except:
-                    print "Could not read key from %s"%(p)
+                    print("Could not read key from %s"%(p))
     return keys            
 
 def printSegmentkeys(segmentkeys):
     for sk in segmentkeys:
-        print sk
+        print(sk)
         keys = segmentkeys[sk]
         for k in keys:
-            print "\t%s"%(k)
+            print("\t%s"%(k))
 
 def getAllActiveKeys(sockets):
     activeKeys = {}
@@ -144,10 +144,10 @@ if __name__ == "__main__":
 
     for segment in segmentPids:
         pid = segmentPids[segment] 
-        #print "Sending SIGHUP to %i"%(pid)
+        #print("Sending SIGHUP to %i"%(pid))
         os.kill(pid,signal.SIGHUP)
     for segment in shrinkedSegments:
         pid = segmentPids[segment]
-        print "Will send SIGUSR2 to %i"%(pid)
+        print("Will send SIGUSR2 to %i"%(pid))
         os.kill(pid,signal.SIGUSR2)
 
