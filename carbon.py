@@ -12,9 +12,10 @@ CARBON_PICKLE_PORT = 2004
 
 
 class Carbon():
-    def __init__(self, timestamp, do_submit):
+    def __init__(self, timestamp, input, do_submit):
         self.timestamp = timestamp
         self.do_submit = do_submit
+        self.input = input
 
     def mac2met(self, mac):
         s = mac.split(":")
@@ -35,8 +36,59 @@ class Carbon():
         sock.sendall(size)
         sock.sendall(package)
 
+    def commitDataGwStats(self):
+        errors = []
+        raw = json.load(open(self.input, "r", encoding='utf-8'))
+        gw = {}
+        nodes = raw["nodes"]
+        for n in nodes:
+            if n["online"] == False:
+                continue
+            node = n["nodeinfo"]["network"]["mac"]
+            try:
+                clients = n["statistics"]["clients"]["total"]
+                gateway = n["statistics"]["gateway"]
+                has_uplink = False
+                if "mesh_vpn" in n["statistics"]:
+                    peers = n["statistics"]["mesh_vpn"]["groups"]["backbone"]["peers"]
+                    for p in peers:
+                        if peers[p] != None:
+                            has_uplink = True
+                            break
+
+                if gateway not in gw:
+                    gw[gateway] = {}
+                    gw[gateway]["fastd"] = 0
+                    gw[gateway]["nodes"] = 0
+                    gw[gateway]["clients"] = 0
+
+                if has_uplink:
+                    gw[gateway]["fastd"] += 1
+
+                gw[gateway]["nodes"] += 1
+                gw[gateway]["clients"] += clients
+            except:
+                print("Error with node %s" % (node))
+                errors.append(node)
+                pass
+        for mac in gw:
+            # print(mac2met(mac))
+            g = gw[mac]
+            data = []
+            prefix = "alfred_gw.%s." % (self.mac2met(mac))
+            data.append((prefix + "clients", g["clients"]))
+            data.append((prefix + "nodes", g["nodes"]))
+            data.append((prefix + "fastd", g["fastd"]))
+            # print(data)
+            if self.do_submit:
+                self.submit(data, self.timestamp)
+            else:
+                print(data)
+        if len(errors) > 0:
+            print("Eroors with nodes: %s" % (" ".join(errors)))
+
     def commitDataNodeStats(self):
-        fn = "data/raw.json"
+        fn = self.input
         try:
             raw = json.load(open(fn, "r", encoding='utf-8'))
         except Exception as e:
@@ -83,16 +135,18 @@ class Carbon():
 
     def run(self):
         self.commitDataNodeStats()
-
+        #self.commitDataGwStats()
 
 def main():
     parser = argparse.ArgumentParser(description='Process some integers.')
-    parser.add_argument('-n', '--dry-run', action='store_true' ,
+    parser.add_argument('-n', '--dry-run', action='store_true',
                         help='dry run')
+    parser.add_argument('-i', '--input', required=True,
+                        help='input file raw.json')
     args = parser.parse_args()
     timestamp = int(time.time())
     do_submit = not args.dry_run
-    carbon = Carbon(timestamp,do_submit=do_submit)
+    carbon = Carbon(timestamp, input=args.input, do_submit=do_submit)
     carbon.run()
 
 
