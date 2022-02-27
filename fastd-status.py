@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import socket
 import argparse
 import json
@@ -16,21 +16,21 @@ dslite = ["46.5.254.26",]
 
 if not os.path.exists(args.input):
     if not args.quiet: 
-        print ("Input file does not exist")
+        print("Input file does not exist")
     sys.exit(-1)
 
 
 s = socket.socket(socket.AF_UNIX,socket.SOCK_STREAM)
 try:
     s.connect(args.input)
-    result = ""
+    result = []
     while(True):
         tmp = s.recv(1024*1024) 
-        if tmp == "":
+        if len(tmp) == 0:
             break
-        result += tmp
+        result.append(tmp)
     s.close()
-    status = json.loads(result)
+    status = json.loads(b''.join(result).decode('utf-8'))
     unconnected = []
 except:
     print("Error while opeining %s"%(args.input))

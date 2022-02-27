@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import argparse
 import subprocess
 import time
@@ -33,7 +33,7 @@ else:
             break
 
 if key == None:
-    print "ERROR: Key was not found"
+    print("ERROR: Key was not found")
     sys.exit(1)
 cmd = []
 cmd.append("server %s"%server)
@@ -59,7 +59,7 @@ else:
                 print("No %s record found for gw%02in%02i.gw.freifunk-stuttgart.de"%(t,args.gw,args.instance))
     
     if len(ip.keys()) == 0:
-        print "ERROR: No IPs given for this instance"
+        print("ERROR: No IPs given for this instance")
         sys.exit(1)
     if args.verbose:
         print("Will enable gw %i instance %i in segment %i"%(args.gw,args.instance,args.segment))
@@ -72,9 +72,9 @@ else:
 cmd.append("send")
 
 if args.verbose:
-    print "\n".join(cmd)
+    print("\n".join(cmd))
 
-fp = open("/tmp/dnsupdate.txt","wb")
+fp = open("/tmp/dnsupdate.txt","w")
 fp.write("\n".join(cmd))
 fp.close()
 
@@ -82,7 +82,7 @@ cmdline = '/usr/bin/nsupdate -k %s -t 300 /tmp/dnsupdate.txt'%(key)
 result = subprocess.call(cmdline.split(" "),shell=False)
 
 if result != 0:
-    print "ERROR: update was not successfully"
+    print("ERROR: update was not successfully")
     sys.exit(1)
 else:
     os.remove("/tmp/dnsupdate.txt")

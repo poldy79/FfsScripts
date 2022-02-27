@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import glob
 import os
 import psutil
@@ -11,14 +11,14 @@ import time
 def readFromSocket(f):
     s = socket.socket(socket.AF_UNIX,socket.SOCK_STREAM)
     s.connect(f)
-    result = ""
+    result = []
     while(True):
         tmp = s.recv(1024*1024)
-        if tmp == "":
+        if len(tmp) == 0:
             break
-        result += tmp
+        result.append(tmp)
     s.close()
-    return result
+    return b''.join(result).decode('utf-8')
 
 def getActiveKeys(f):
     data = readFromSocket(f)
@@ -127,6 +127,16 @@ def getShrinkedSegments(before,after):
                     shrinkedSegments[segment] = True
     return shrinkedSegments.keys()
 
+def write_segment_key_cache(segmentkeys,basedir):
+    for sk in segmentkeys:
+        fn = f"{basedir}/{sk}/peers.keys"
+        fn_tmp = f"{fn}.tmp"
+        with open(fn_tmp,"w") as fp:
+            keys = "\n".join(segmentkeys[sk])
+            fp.write(keys)
+        os.rename(fn_tmp,fn)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Updates peer files and sends signals to fastd')
     parser.add_argument('--repo',dest='basedir',action='store',required=True,help='path to repo')
@@ -136,6 +146,7 @@ if __name__ == "__main__":
     basedir = args.basedir
 
     segmentkeys_after = getAllKeys(basedir)
+    write_segment_key_cache(segmentkeys_after, basedir)
 
     segmentPids = getProcesses()
     sockets = getSockets(segmentPids)
