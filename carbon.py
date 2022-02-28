@@ -92,6 +92,8 @@ class Carbon():
             carbon_data.append((prefix + "nodes", g["nodes"]))
             carbon_data.append((prefix + "fastd", g["fastd"]))
             prometheus_data.append(f'PUTVAL "{gw_name}/respondd_segment-{segment}/gauge-clients" N:{g["clients"]}')
+            prometheus_data.append(f'PUTVAL "{gw_name}/respondd_segment-{segment}/gauge-nodes" N:{g["nodes"]}')
+            prometheus_data.append(f'PUTVAL "{gw_name}/respondd_segment-{segment}/gauge-fastd" N:{g["fastd"]}')
 
             # print(carbon_data)
             if self.carbon:
