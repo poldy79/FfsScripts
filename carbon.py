@@ -11,6 +11,7 @@ CARBON_SERVER = '10.191.255.243'
 CARBON_PICKLE_PORT = 2004
 INTERVAL = 60
 
+
 class Carbon():
     def __init__(self, timestamp, input, carbon, collectd, dump, verbose):
         self.timestamp = timestamp
@@ -82,7 +83,6 @@ class Carbon():
                 errors.append(node)
                 pass
         for mac in gw:
-            # print(mac2met(mac))
             g = gw[mac]
             carbon_data = []
             prometheus_data = []
@@ -94,12 +94,9 @@ class Carbon():
             prometheus_data.append(f'PUTVAL "{gw_name}/respondd_segment-{segment}/gauge-clients" N:{g["clients"]}')
             prometheus_data.append(f'PUTVAL "{gw_name}/respondd_segment-{segment}/gauge-nodes" N:{g["nodes"]}')
             prometheus_data.append(f'PUTVAL "{gw_name}/respondd_segment-{segment}/gauge-fastd" N:{g["fastd"]}')
-
-            # print(carbon_data)
             if self.carbon:
                 self.submit_to_carbon(carbon_data)
             if self.collectd:
-                # print(carbon_data)
                 print("\n".join(prometheus_data))
         if len(errors) > 0:
             print("Eroors with nodes: %s" % (" ".join(errors)))
@@ -140,7 +137,6 @@ class Carbon():
                         self.submit_to_carbon(data)
                     if self.dump:
                         print(data)
-                    # print("wrote data for %s"%(hostname))
             except KeyError as e:
                 pass
             except Exception as e:
@@ -156,13 +152,14 @@ class Carbon():
             raise
 
     def run(self):
-        while(True):
+        while (True):
             self.load_json()
             self.commitDataNodeStats()
             self.commitDataGwStats()
             if not self.collectd:
                 break
             time.sleep(INTERVAL)
+
 
 def main():
     parser = argparse.ArgumentParser(description='Process some integers.')
@@ -178,7 +175,8 @@ def main():
                         help='input file raw.json')
     args = parser.parse_args()
     timestamp = int(time.time())
-    carbon = Carbon(timestamp, input=args.input, carbon=args.carbon, collectd=args.collectd, dump=args.dump, verbose=args.verbose)
+    carbon = Carbon(timestamp, input=args.input, carbon=args.carbon, collectd=args.collectd, dump=args.dump,
+                    verbose=args.verbose)
     carbon.run()
 
 
