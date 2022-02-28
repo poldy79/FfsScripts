@@ -154,7 +154,8 @@ class Carbon():
     def run(self):
         while (True):
             self.load_json()
-            self.commitDataNodeStats()
+            if self.carbon:
+                self.commitDataNodeStats()
             self.commitDataGwStats()
             if not self.collectd:
                 break
