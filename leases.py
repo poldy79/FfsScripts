@@ -11,6 +11,8 @@ def getSubnetFromRange(ipRangeStr):
     tmp =  ipRangeStr.split(" - ")
     r = IPRange(tmp[0],tmp[1])
     segment = 0
+    if r in IPNetwork("10.191.0.0/19"): # seg 33
+        return ("10.191.0.0/19", 33)
     for subnet in ffsNet.subnet(21):
         segment+=1
         if r in subnet:
