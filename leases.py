@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import subprocess
 import os
 import sys
@@ -38,7 +38,7 @@ def putval(cmd,hostname):
     sys.stdout.flush()
 
 def loop():
-    executable = "/usr/local/bin/dhcpd-pools"
+    executable = "/usr/bin/dhcpd-pools"
     if not os.path.isfile(executable):
         executable = "dhcpd-pools"
     if not os.path.isfile(executable):
