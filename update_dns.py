@@ -48,12 +48,12 @@ if args.remove:
             cmd.append("update delete gw%02is%02i.gw.freifunk-stuttgart.de %s"%(args.gw,args.segment,t))
 else:
     resolver = dns.resolver.Resolver()
-    server_ip = resolver.query("%s."%(server),"a")[0].to_text()
+    server_ip = resolver.resolve("%s."%(server),"a")[0].to_text()
     resolver.nameservers = [server_ip]
     ip = {}
     for t in ["a","aaaa"]:
         try:
-            ip[t] = resolver.query("gw%02in%02i.gw.freifunk-stuttgart.de."%(args.gw,args.instance),t)[0]
+            ip[t] = resolver.resolve("gw%02in%02i.gw.freifunk-stuttgart.de."%(args.gw,args.instance),t)[0]
         except:
             if args.verbose:
                 print("No %s record found for gw%02in%02i.gw.freifunk-stuttgart.de"%(t,args.gw,args.instance))
