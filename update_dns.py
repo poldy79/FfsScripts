@@ -9,7 +9,7 @@ import sys
 #key = "/home/leonard/freifunk/Kgw.freifunk-stuttgart.de.+165+50977.key"
 
 key_basename = "Kgw.freifunk-stuttgart.de.+165+50977.key"
-server = "dns1.lihas.de"
+server = "dns2.lihas.de"
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--gw", help="gw to update", type=int)
