@@ -78,26 +78,23 @@ class Carbon():
 
                 gw[gateway]["nodes"] += 1
                 gw[gateway]["clients"] += clients
-            except:
+            except Exception:
                 print("Error with node %s" % (node))
                 errors.append(node)
                 pass
+        
         for mac in gw:
             g = gw[mac]
             carbon_data = []
             prometheus_data = []
             gw_name, segment = self.convert_mac(mac)
             prefix = "alfred_gw.%s." % (self.mac2met(mac))
-            carbon_data.append((prefix + "clients", g["clients"]))
-            carbon_data.append((prefix + "nodes", g["nodes"]))
-            carbon_data.append((prefix + "fastd", g["fastd"]))
+
             prometheus_data.append(f'PUTVAL "{gw_name}/respondd_segment-{segment}/gauge-clients" N:{g["clients"]}')
             prometheus_data.append(f'PUTVAL "{gw_name}/respondd_segment-{segment}/gauge-nodes" N:{g["nodes"]}')
             prometheus_data.append(f'PUTVAL "{gw_name}/respondd_segment-{segment}/gauge-fastd" N:{g["fastd"]}')
-            if self.carbon:
-                self.submit_to_carbon(carbon_data)
-            if self.collectd:
-                print("\n".join(prometheus_data))
+            
+            print("\n".join(prometheus_data))
         if len(errors) > 0:
             print("Eroors with nodes: %s" % (" ".join(errors)))
 
